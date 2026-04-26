@@ -242,6 +242,30 @@ services:
       - bestcars-net
     profiles: ["dev", "prod"]
 
+    profiles: ["dev", "prod"]
+
+  # ── Centralized Audit Logging Service ────────────────────
+  audit-service:
+    build:
+      context: ./audit-service
+      dockerfile: Dockerfile
+    image: bestcars-audit
+    container_name: bestcars-audit
+    ports:
+      - "3090:3090"
+    environment:
+      - MONGO_URL=mongodb://mongo-dealers:27017/audit
+      - REDIS_URL=redis://redis:6379/4
+    depends_on:
+      mongo-dealers:
+        condition: service_started
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
+
 # ── Named volumes ─────────────────────────────────────────────
 volumes:
   mongo_dealers_data:

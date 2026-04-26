@@ -1,0 +1,85 @@
+.audit-admin-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.audit-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-6);
+}
+
+.audit-header {
+  margin-bottom: var(--space-12);
+}
+
+.audit-header h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-2);
+}
+
+.audit-header p {
+  color: var(--color-text-muted);
+}
+
+.audit-list {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.audit-table th {
+  text-align: left;
+  padding: var(--space-4) var(--space-6);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.audit-table td {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.time { color: var(--color-text-muted); font-family: monospace; }
+.service { color: var(--color-text-secondary); font-weight: 600; }
+.user { font-weight: 700; }
+
+.action-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.action-badge.booking_created { color: #6366f1; background: rgba(99, 102, 241, 0.1); }
+.action-badge.review_posted { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+
+.status-badge {
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.status-badge.success { color: #10b981; }
+.status-badge.failure { color: #ef4444; }
+
+.audit-loader {
+  text-align: center;
+  padding: 100px;
+  color: var(--color-primary);
+  font-weight: 700;
+}

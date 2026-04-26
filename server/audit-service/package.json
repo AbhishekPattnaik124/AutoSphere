@@ -1,0 +1,16 @@
+{
+  "name": "audit-service",
+  "version": "1.0.0",
+  "description": "Centralized Audit Logging for AutoSphere",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.4.1",
+    "redis": "^4.6.8",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  }
+}

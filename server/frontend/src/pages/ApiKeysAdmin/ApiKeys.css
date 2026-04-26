@@ -1,0 +1,127 @@
+.apikeys-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.apikeys-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-6);
+}
+
+.apikeys-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-12);
+}
+
+.apikeys-header h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-2);
+}
+
+.apikeys-header p {
+  color: var(--color-text-muted);
+}
+
+.keys-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-6);
+}
+
+.key-card {
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+}
+
+.key-header h3 {
+  font-size: var(--font-size-md);
+  margin-bottom: 4px;
+}
+
+.service-id {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.key-body {
+  margin-top: var(--space-6);
+}
+
+.key-value-wrapper {
+  background: rgba(0, 0, 0, 0.3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.key-value-wrapper code {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.key-value-wrapper button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.key-meta {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.modal {
+  width: 100%;
+  max-width: 450px;
+  padding: var(--space-8);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+}
+
+.modal h2 {
+  margin-bottom: var(--space-8);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.modal-actions button[type="button"] {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
