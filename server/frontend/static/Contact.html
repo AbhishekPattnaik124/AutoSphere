@@ -5,67 +5,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="/static/bootstrap.min.css">
-  <title>Contact Us</title>
+  <title>Contact Us - Best Cars Dealership</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+    .contact-container {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+    }
+    .contact-info {
+      padding: 4rem;
+      background: #ffffff;
+    }
+    .contact-image {
+      background: url('/static/contact_banner.png') center/cover;
+      min-height: 400px;
+    }
+    .info-item {
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: flex-start;
+    }
+    .info-icon {
+      background: darkturquoise;
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1.5rem;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .info-text h4 {
+      margin-bottom: 0.2rem;
+      color: #2d3748;
+      font-weight: 700;
+    }
+    .info-text p {
+      color: #718096;
+      margin-bottom: 0;
+    }
+    .social-links a {
+      color: #4a5568;
+      margin-right: 1.5rem;
+      font-size: 1.5rem;
+      transition: color 0.3s ease;
+      text-decoration: none;
+    }
+    .social-links a:hover {
+      color: darkturquoise;
+    }
+    .navbar {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .contact-title {
+        font-weight: 800;
+        color: #1a202c;
+        margin-bottom: 2rem;
+    }
+  </style>
 </head>
 <body>
-
   <nav class="navbar navbar-expand-lg navbar-light" style="background-color: darkturquoise; height: 60px;">
     <div class="container-fluid">
-      <h2 style="padding-right: 5%;">Dealerships</h2>
+      <h2 style="padding-right: 5%; color: white; font-weight: 700;">Best Cars</h2>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarText">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" style="font-size: larger;" href="/">Home</a>
+            <a class="nav-link" style="font-size: larger; color: rgba(255,255,255,0.8);" href="/">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" style="font-size: larger;" href="/about">About Us</a>
+            <a class="nav-link" style="font-size: larger; color: rgba(255,255,255,0.8);" href="/about">About Us</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" style="font-size: larger;" href="/contact">Contact Us</a>
+            <a class="nav-link active" style="font-size: larger; color: white;" href="/contact">Contact Us</a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <div class="container" style="margin-top: 50px;">
-    <div class="card" style="width: 70%; margin: auto;">
-      <div class="card-body">
-        <div class="image">
-            <img src="https://content.jdmagicbox.com/comp/def_content/car-dealers/shutterstock-446092015-car-dealers-16-4l1vf.jpg" width="100px"/>
-        </div>
-        <h2 class="card-title" style="text-align: center;">Contact Us</h2>
-        <p style="text-align: center;">We would love to hear from you! Reach out to us using the following details.</p>
-
-        <div class="row" style="text-align: center; margin-top: 30px;">
-          <div class="col-md-4">
-            <h4>Email</h4>
-            <p>contact@bestcarsdealership.com</p>
-          </div>
-          <div class="col-md-4">
-            <h4>Phone</h4>
-            <p>(123) 456-7890</p>
-          </div>
-          <div class="col-md-4">
-            <h4>Address</h4>
-            <p>1234 Car Dealership Lane, Car City, CA 90001</p>
+  <div class="container">
+    <div class="row contact-container">
+      <div class="col-lg-6 contact-image">
+        <!-- Background image applied via CSS -->
+      </div>
+      <div class="col-lg-6 contact-info">
+        <h1 class="contact-title">Get in Touch</h1>
+        <p class="mb-5 text-muted">Have questions about our inventory or financing options? Our elite team is here to assist you with a premium car-buying experience.</p>
+        
+        <div class="info-item">
+          <div class="info-icon">@</div>
+          <div class="info-text">
+            <h4>Email Us</h4>
+            <p>concierge@bestcars.com</p>
           </div>
         </div>
 
-        <div style="text-align: center; margin-top: 30px;">
-          <h4>Social Media</h4>
-          <p>Follow us on our social media profiles for updates and promotions!</p>
-          <a href="https://facebook.com/BestCars" target="_blank">Facebook</a> |
-          <a href="https://twitter.com/BestCars" target="_blank">Twitter</a> |
-          <a href="https://instagram.com/BestCars" target="_blank">Instagram</a>
+        <div class="info-item">
+          <div class="info-icon">✆</div>
+          <div class="info-text">
+            <h4>Call Us</h4>
+            <p>+1 (800) BEST-CARS</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon">⚲</div>
+          <div class="info-text">
+            <h4>Visit Our Showroom</h4>
+            <p>123 Luxury Drive, Automotive District<br>Beverly Hills, CA 90210</p>
+          </div>
+        </div>
+
+        <hr class="my-5">
+
+        <h5 class="mb-3">Follow the Excellence</h5>
+        <div class="social-links">
+          <a href="#" title="Facebook">FB</a>
+          <a href="#" title="Twitter">TW</a>
+          <a href="#" title="Instagram">IG</a>
+          <a href="#" title="LinkedIn">IN</a>
         </div>
       </div>
     </div>
   </div>
-
 </body>
 </html>
-
