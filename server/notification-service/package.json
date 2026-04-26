@@ -1,0 +1,16 @@
+{
+  "name": "notification-service",
+  "version": "1.0.0",
+  "description": "Real-time Notification Service for AutoSphere",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "redis": "^4.6.8",
+    "socket.io": "^4.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  }
+}

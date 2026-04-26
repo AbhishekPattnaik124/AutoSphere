@@ -202,7 +202,7 @@ const Dealers = () => {
                   <th scope="col">Address</th>
                   <th scope="col">Zip</th>
                   <th scope="col">State</th>
-                  {isLoggedIn && <th scope="col">Review</th>}
+                  {isLoggedIn && <th scope="col">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -228,11 +228,14 @@ const Dealers = () => {
                         </td>
                         {isLoggedIn && (
                           <td>
-                            <a href={`/postreview/${dealer.id}`} aria-label={`Review ${dealer.full_name}`}>
-                              <img src={reviewIcon} alt="Post Review" style={{ width: '28px', opacity: 0.8, transition: 'opacity var(--transition-fast)', filter: 'hue-rotate(130deg)' }}
-                                onMouseOver={e => e.target.style.opacity = '1'}
-                                onMouseOut={e => e.target.style.opacity = '0.8'} />
-                            </a>
+                            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
+                              <a href={`/postreview/${dealer.id}`} aria-label={`Review ${dealer.full_name}`}>
+                                <img src={reviewIcon} alt="Post Review" style={{ width: '28px', opacity: 0.8, transition: 'opacity var(--transition-fast)', filter: 'hue-rotate(130deg)' }}
+                                  onMouseOver={e => e.target.style.opacity = '1'}
+                                  onMouseOut={e => e.target.style.opacity = '0.8'} />
+                              </a>
+                              <a href={`/book/${dealer.id}`} className="btn-book-sm">Book</a>
+                            </div>
                           </td>
                         )}
                       </tr>

@@ -30,6 +30,15 @@ const cars = new Schema({
   price: {
     type: Number,
     required: true
+  },
+  view_count: {
+    type: Number,
+    default: 0
+  },
+  status: {
+    type: String,
+    enum: ['available', 'reserved', 'sold'],
+    default: 'available'
   }
 });
 

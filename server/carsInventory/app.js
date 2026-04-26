@@ -20,6 +20,7 @@ const rateLimit = require('express-rate-limit');
 const Cars = require('./inventory');
 const { parseNLQuery, executeNLSearch } = require('./nlsearch');
 const https = require('https');
+const redis = require('redis');
 
 const app = express();
 const port = process.env.PORT || 3050;
@@ -29,6 +30,11 @@ const SERVICE_START = Date.now();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
+
+// ── Redis Setup ──────────────────────────────────────────
+const REDIS_URL = process.env.REDIS_URL || 'redis://redis:6379/4';
+const redisClient = redis.createClient({ url: REDIS_URL });
+redisClient.connect().catch(err => console.error('Redis Error:', err));
 
 // ── Structured request logging ─────────────────────────────
 app.use((req, res, next) => {
@@ -311,10 +317,14 @@ app.post('/cars/:id/event', async (req, res) => {
     }
     if (!_inventoryEvents.has(carId)) _inventoryEvents.set(carId, []);
     _inventoryEvents.get(carId).push({ event_type, timestamp: Date.now(), session_id });
-    // Trim to last 500 events per car
-    if (_inventoryEvents.get(carId).length > 500) {
-      _inventoryEvents.set(carId, _inventoryEvents.get(carId).slice(-500));
-    }
+    
+    // Publish to Redis
+    await redisClient.publish('inventory_events', JSON.stringify({
+      type: 'INVENTORY_UPDATE',
+      car_id: carId,
+      event: event_type
+    }));
+
     res.json({ success: true, car_id: carId, event_type });
   } catch (error) {
     res.status(500).json({ error: 'EVENT_ERROR', message: 'Failed to log event' });

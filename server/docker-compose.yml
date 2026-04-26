@@ -201,6 +201,47 @@ services:
       - bestcars-net
     profiles: ["dev", "prod"]
 
+  # ── Appointment Booking Service ──────────────────────────
+  booking-service:
+    build:
+      context: ./booking-service
+      dockerfile: Dockerfile
+    image: bestcars-booking
+    container_name: bestcars-booking
+    ports:
+      - "3060:3060"
+    environment:
+      - MONGO_URL=mongodb://mongo-dealers:27017/bookings
+      - REDIS_URL=redis://redis:6379/4
+    depends_on:
+      mongo-dealers:
+        condition: service_started
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
+
+  # ── Real-Time Notification Service ───────────────────────
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    image: bestcars-notification
+    container_name: bestcars-notification
+    ports:
+      - "3080:3080"
+    environment:
+      - REDIS_URL=redis://redis:6379/4
+    depends_on:
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
+
 # ── Named volumes ─────────────────────────────────────────────
 volumes:
   mongo_dealers_data:

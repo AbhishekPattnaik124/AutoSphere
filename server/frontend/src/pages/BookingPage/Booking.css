@@ -1,0 +1,136 @@
+.booking-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding-bottom: var(--space-12);
+}
+
+.booking-container {
+  max-width: 600px;
+  margin: var(--space-12) auto;
+  padding: 0 var(--space-4);
+}
+
+.booking-card {
+  padding: var(--space-8);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  animation: slideUp 0.6s ease-out;
+}
+
+.booking-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.booking-header h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-2);
+}
+
+.booking-header p {
+  color: var(--color-text-muted);
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-group label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-left: var(--space-1);
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.btn-primary {
+  margin-top: var(--space-4);
+  background: var(--gradient-primary);
+  color: white;
+  padding: var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.success-message {
+  text-align: center;
+  padding: var(--space-8);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.success-icon {
+  width: 60px;
+  height: 60px;
+  background: #10b981;
+  color: white;
+  font-size: 30px;
+  line-height: 60px;
+  border-radius: 50%;
+  margin: 0 auto var(--space-4);
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
