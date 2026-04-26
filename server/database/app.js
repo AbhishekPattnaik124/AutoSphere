@@ -8,8 +8,10 @@ const port = 3030;
 app.use(cors())
 app.use(require('body-parser').urlencoded({ extended: false }));
 
+const Cars = require('./inventory');
 const reviews_data = JSON.parse(fs.readFileSync("data/reviews.json", 'utf8'));
 const dealerships_data = JSON.parse(fs.readFileSync("data/dealerships.json", 'utf8'));
+const cars_data = JSON.parse(fs.readFileSync("data/car_records.json", 'utf8'));
 
 const mongo_url = process.env.MONGO_URL || "mongodb://mongo_db:27017/";
 mongoose.connect(mongo_url,{'dbName':'dealershipsDB'});
@@ -26,10 +28,27 @@ try {
   Dealerships.deleteMany({}).then(()=>{
     Dealerships.insertMany(dealerships_data['dealerships']);
   });
+  Cars.deleteMany({}).then(()=>{
+    let cars = cars_data['cars'].map(car => {
+      if(!car.price) car.price = Math.floor(Math.random() * (70000 - 20000 + 1)) + 20000;
+      return car;
+    });
+    Cars.insertMany(cars);
+  });
   
 } catch (error) {
-  res.status(500).json({ error: 'Error fetching documents' });
+  console.error("Error seeding database:", error);
 }
+
+// Express route to fetch cars by a particular dealer
+app.get('/fetchCars/dealer/:id', async (req, res) => {
+  try {
+    const documents = await Cars.find({dealer_id: req.params.id});
+    res.json(documents);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching documents' });
+  }
+});
 
 
 // Express route to home

@@ -1,0 +1,19 @@
+gh run list
+STATUS  NAME                                  WORKFLOW     BRANCH  EVENT  ID          ELAPSED  AGE
+✓       Added GitHub Actions linting workflow  Django Lint  main    push   1234567890  17s      1m
+
+gh run view 1234567890 --verbose
+✓ Added GitHub Actions linting workflow · 1234567890
+main: Added GitHub Actions linting workflow (push)
+
+JOBS
+✓ lint in 15s (ID 9876543210)
+  STEPS
+  ✓ Set up job (1s)
+  ✓ Run actions/checkout@v4 (1s)
+  ✓ Run actions/setup-python@v5 (0s)
+  ✓ Install dependencies (8s)
+  ✓ Run flake8 (1s)
+  ✓ Post Run actions/setup-python@v5 (0s)
+  ✓ Post Run actions/checkout@v4 (0s)
+  ✓ Complete job (0s)

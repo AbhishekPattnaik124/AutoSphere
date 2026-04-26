@@ -1,4 +1,3 @@
-const { Int32 } = require('mongodb');
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
@@ -27,6 +26,10 @@ year: {
 mileage: {
     type: Number,
     required: true
+  },
+price: {
+    type: Number,
+    required: false
   }
 });
 
