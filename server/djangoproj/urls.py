@@ -32,6 +32,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 # ── Platform health check ──────────────────────────────────
 _start_time = time.time()
 
+
 def platform_health(request):
     """
     Unified health check for the Django Hub.

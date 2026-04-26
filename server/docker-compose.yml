@@ -178,8 +178,6 @@ services:
     networks:
       - bestcars-net
     profiles: ["dev", "prod"]
-    networks:
-      - bestcars-net
 
   # ── AI Recommendation Service ────────────────────────────
   recommend-service:
