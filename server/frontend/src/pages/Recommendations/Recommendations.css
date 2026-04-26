@@ -1,0 +1,24 @@
+.rec-step-btn {
+  background: var(--color-bg-elevated);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-base);
+  font-family: var(--font-family);
+}
+.rec-step-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+}
+.rec-step-btn.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+  box-shadow: 0 0 16px var(--color-primary-glow);
+}
+
+input[type='range'] {
+  height: 6px;
+  border-radius: var(--radius-full);
+}

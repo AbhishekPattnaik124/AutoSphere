@@ -18,6 +18,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const Cars = require('./inventory');
+const { parseNLQuery, executeNLSearch } = require('./nlsearch');
+const https = require('https');
 
 const app = express();
 const port = process.env.PORT || 3050;
@@ -265,6 +267,124 @@ app.get('/cars/stats/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'STATS_ERROR', message: 'Error computing stats' });
   }
+});
+
+// ══════════════════════════════════════════════════════════
+// ADDITION BLOCK 1 (A3) — Natural Language Inventory Search
+// ══════════════════════════════════════════════════════════
+
+// POST /cars/nlsearch
+// Body: { query: "red SUV under $30,000 with low mileage", dealer_id: "1" }
+app.post('/cars/nlsearch', async (req, res) => {
+  try {
+    const { query, dealer_id } = req.body || {};
+    if (!query || !query.trim()) {
+      return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'query is required' });
+    }
+    const filters = parseNLQuery(query);
+    const results = await executeNLSearch(filters, Cars, dealer_id);
+    res.json({
+      query,
+      extracted_filters: filters,
+      count: results.length,
+      cars: results,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'NL_SEARCH_ERROR', message: 'Natural language search failed' });
+  }
+});
+
+// ══════════════════════════════════════════════════════════
+// ADDITION BLOCK 2 (B1) — Live Inventory Events
+// ══════════════════════════════════════════════════════════
+
+// In-memory event store (replace with MongoDB collection in production)
+const _inventoryEvents = new Map(); // car_id → [{ event_type, timestamp, session_id }]
+
+// POST /cars/:id/event  — log a view/reserve/sold event
+app.post('/cars/:id/event', async (req, res) => {
+  try {
+    const { event_type = 'viewed', session_id = 'anon' } = req.body || {};
+    const carId = req.params.id;
+    if (!['viewed', 'reserved', 'sold'].includes(event_type)) {
+      return res.status(400).json({ error: 'INVALID_EVENT', message: 'event_type must be viewed|reserved|sold' });
+    }
+    if (!_inventoryEvents.has(carId)) _inventoryEvents.set(carId, []);
+    _inventoryEvents.get(carId).push({ event_type, timestamp: Date.now(), session_id });
+    // Trim to last 500 events per car
+    if (_inventoryEvents.get(carId).length > 500) {
+      _inventoryEvents.set(carId, _inventoryEvents.get(carId).slice(-500));
+    }
+    res.json({ success: true, car_id: carId, event_type });
+  } catch (error) {
+    res.status(500).json({ error: 'EVENT_ERROR', message: 'Failed to log event' });
+  }
+});
+
+// GET /cars/:id/live-status — returns real-time urgency signals
+app.get('/cars/:id/live-status', async (req, res) => {
+  try {
+    const carId = req.params.id;
+    const events = _inventoryEvents.get(carId) || [];
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+    const oneDay = 24 * oneHour;
+
+    const viewsLastHour = events.filter(e => e.event_type === 'viewed' && now - e.timestamp < oneHour).length;
+    const reservedToday = events.filter(e => e.event_type === 'reserved' && now - e.timestamp < oneDay).length;
+    const isSold = events.some(e => e.event_type === 'sold');
+    const isReserved = reservedToday > 0;
+
+    res.json({
+      car_id: carId,
+      views_last_hour: viewsLastHour,
+      times_reserved_today: reservedToday,
+      availability: isSold ? 'sold' : isReserved ? 'reserved' : 'available',
+      urgency_label: viewsLastHour >= 10 ? 'high' : viewsLastHour >= 3 ? 'medium' : 'low',
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'STATUS_ERROR', message: 'Failed to get live status' });
+  }
+});
+
+// ══════════════════════════════════════════════════════════
+// ADDITION BLOCK 8 (H1) — VIN Decoder (NHTSA vPIC API)
+// ══════════════════════════════════════════════════════════
+
+// GET /cars/vin/:vin/decode
+app.get('/cars/vin/:vin/decode', async (req, res) => {
+  const vin = req.params.vin.trim().toUpperCase();
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) {
+    return res.status(400).json({ error: 'INVALID_VIN', message: 'VIN must be 17 alphanumeric characters' });
+  }
+  const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
+  https.get(url, (apiRes) => {
+    let body = '';
+    apiRes.on('data', chunk => { body += chunk; });
+    apiRes.on('end', () => {
+      try {
+        const data = JSON.parse(body);
+        const results = data.Results || [];
+        const pick = (variableId) => results.find(r => r.VariableId === variableId)?.Value || null;
+        res.json({
+          vin,
+          make:          pick(26),
+          model:         pick(28),
+          year:          pick(29),
+          body_class:    pick(5),
+          drive_type:    pick(15),
+          fuel_type:     pick(24),
+          plant_country: pick(75),
+          engine_model:  pick(18),
+          source: 'NHTSA vPIC',
+        });
+      } catch (e) {
+        res.status(500).json({ error: 'VIN_DECODE_ERROR', message: 'Failed to parse NHTSA response' });
+      }
+    });
+  }).on('error', (e) => {
+    res.status(502).json({ error: 'NHTSA_UNREACHABLE', message: 'NHTSA API unavailable' });
+  });
 });
 
 // ── Global error handler ──────────────────────────────────

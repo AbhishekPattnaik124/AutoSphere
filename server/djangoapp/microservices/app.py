@@ -304,6 +304,101 @@ def dealer_analytics(dealer_id):
     })
 
 
+# ══════════════════════════════════════════════════════════
+# ADDITION BLOCK 1 (A4) — Sentiment-Driven Dealer Trust Score
+# ══════════════════════════════════════════════════════════
+
+@app.get('/analytics/dealer/<dealer_id>/score')
+def dealer_trust_score(dealer_id):
+    """
+    Compute a composite Dealer Trust Score (0-100) from:
+      - avg_sentiment_positivity (40%): mean confidence of positive reviews
+      - review_volume_normalized (20%): log-scaled review count vs 100 reviews
+      - recency_weighted_rating (40%): reviews weighted by how recent they are
+
+    Query params:
+        reviews (JSON list): [{ "sentiment": "positive", "confidence": 0.9, "date": "2024-01-15" }]
+        If not provided, returns a stub score for frontend integration.
+    """
+    import math
+
+    reviews_raw = request.args.get('reviews', '[]')
+    try:
+        reviews = __import__('json').loads(reviews_raw)
+    except Exception:
+        reviews = []
+
+    if not reviews:
+        # Return a deterministic stub based on dealer_id for frontend integration
+        seed = sum(ord(c) for c in str(dealer_id)) % 40
+        stub_score = 55 + seed
+        grade = 'A' if stub_score >= 90 else 'B' if stub_score >= 80 else 'C' if stub_score >= 70 else 'D'
+        return jsonify({
+            "dealer_id": dealer_id,
+            "score": stub_score,
+            "grade": grade,
+            "breakdown": {
+                "avg_sentiment_positivity": round(stub_score * 0.4),
+                "review_volume_score": round(stub_score * 0.2),
+                "recency_weighted_rating": round(stub_score * 0.4),
+            },
+            "note": "Pass ?reviews=[...] for live computation",
+        })
+
+    # ── Component 1: avg sentiment positivity (40%) ──────
+    positive_reviews = [r for r in reviews if r.get('sentiment') == 'positive']
+    if positive_reviews:
+        avg_pos = sum(r.get('confidence', 0.5) for r in positive_reviews) / len(positive_reviews)
+    else:
+        avg_pos = 0.0
+    sentiment_score = avg_pos * 100 * 0.4
+
+    # ── Component 2: review volume normalized (20%) ──────
+    volume = len(reviews)
+    volume_score = min(1.0, math.log1p(volume) / math.log1p(100)) * 100 * 0.2
+
+    # ── Component 3: recency weighted rating (40%) ───────
+    now = datetime.utcnow()
+    total_weight = 0.0
+    weighted_pos = 0.0
+    for r in reviews:
+        try:
+            date_str = r.get('date', '')
+            if date_str:
+                review_date = datetime.strptime(date_str[:10], '%Y-%m-%d')
+                days_old = max(1, (now - review_date).days)
+                weight = 1.0 / math.sqrt(days_old)
+            else:
+                weight = 0.5
+        except Exception:
+            weight = 0.5
+        total_weight += weight
+        if r.get('sentiment') == 'positive':
+            weighted_pos += weight * r.get('confidence', 0.7)
+    recency_score = (weighted_pos / max(total_weight, 0.001)) * 100 * 0.4
+
+    composite = sentiment_score + volume_score + recency_score
+    composite = min(100, max(0, round(composite, 1)))
+
+    grade = 'A+' if composite >= 95 else 'A' if composite >= 90 else 'B+' if composite >= 85 else \
+            'B' if composite >= 80 else 'C+' if composite >= 75 else 'C' if composite >= 70 else \
+            'D' if composite >= 60 else 'F'
+
+    return jsonify({
+        "dealer_id": dealer_id,
+        "score": composite,
+        "grade": grade,
+        "breakdown": {
+            "avg_sentiment_positivity": round(sentiment_score, 1),
+            "review_volume_score": round(volume_score, 1),
+            "recency_weighted_rating": round(recency_score, 1),
+            "review_count": volume,
+            "positive_count": len(positive_reviews),
+        },
+        "model": active_model,
+    })
+
+
 # ── Error handlers ────────────────────────────────────────
 @app.errorhandler(404)
 def not_found(e):
