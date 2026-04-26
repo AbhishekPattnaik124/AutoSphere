@@ -42,6 +42,7 @@ const Dealer = () => {
   let reviews_url = root_url+`djangoapp/reviews/dealer/${id}`;
   let inventory_url = root_url+`djangoapp/inventory/${id}`;
   let post_review = root_url+`postreview/${id}`;
+  let search_cars = root_url+`searchcars/${id}`;
   
   const get_cars = async ()=>{
     const res = await fetch(inventory_url, {
@@ -104,6 +105,7 @@ return(
       <div style={{marginTop:"10px"}}>
       <h1 style={{color:"grey"}}>{dealer.full_name}{postReview}</h1>
       <h4  style={{color:"grey"}}>{dealer['city']},{dealer['address']}, Zip - {dealer['zip']}, {dealer['state']} </h4>
+      <a href={search_cars} style={{marginLeft:"10px", fontSize: "1.2rem", fontWeight: "bold"}}>Search Cars</a>
       </div>
       <div style={{marginTop:"30px"}}>
         <h2 style={{color:"#2c3e50"}}>Car Inventory</h2>

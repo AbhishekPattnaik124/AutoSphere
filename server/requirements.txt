@@ -1,5 +1,21 @@
-requests
-Django
-Pillow
-gunicorn
-python-dotenv
+requests==2.31.0
+Django==4.2.7
+Pillow==10.1.0
+gunicorn==21.2.0
+python-dotenv==1.0.0
+
+# Django REST Framework
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.0
+django-cors-headers==4.3.1
+django-filter==23.5
+drf-spectacular==0.27.0
+
+# Caching
+django-redis==5.4.0
+
+# Database URL parsing (for PostgreSQL in production)
+dj-database-url==2.1.0
+
+# HTTP resilience
+urllib3==2.1.0

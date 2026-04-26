@@ -1,0 +1,192 @@
+# ============================================================
+# Best Cars Dealership — Root Docker Compose
+# Consolidates ALL microservices into a single orchestration.
+#
+# Usage:
+#   Development:  docker compose --profile dev up --build
+#   Production:   docker compose --profile prod up --build -d
+#   Microservices only (no Django): docker compose up database-api carsinventory-api mongo-dealers mongo-inventory
+# ============================================================
+
+services:
+
+  # ── API Gateway (Nginx) ────────────────────────────────────
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: bestcars-gateway
+    ports:
+      - "80:80"
+    depends_on:
+      django:
+        condition: service_started
+      database-api:
+        condition: service_started
+      carsinventory-api:
+        condition: service_started
+      sentiment-analyzer:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
+
+  # ── Django Hub ────────────────────────────────────────────
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bestcars-django
+    ports:
+      - "8000:8000"     # Direct access kept for dev convenience
+    env_file:
+      - djangoapp/.env
+    environment:
+      - DJANGO_ENV=${DJANGO_ENV:-development}
+      - REDIS_URL=redis://redis:6379/0
+      - DEALER_SERVICE_URL=http://database-api:3030
+      - INVENTORY_SERVICE_URL=http://carsinventory-api:3050
+      - SENTIMENT_SERVICE_URL=http://sentiment-analyzer:5050
+    depends_on:
+      redis:
+        condition: service_started
+      database-api:
+        condition: service_started
+    volumes:
+      - .:/app                    # Hot-reload in dev
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
+
+  # ── Redis Cache & Event Bus ───────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: bestcars-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    profiles: ["dev", "prod"]
+
+  # ── Dealer & Review MongoDB ──────────────────────────────
+  mongo-dealers:
+    image: mongo:7
+    container_name: bestcars-mongo-dealers
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_dealers_data:/data/db
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    profiles: ["dev", "prod"]
+
+  # ── Node.js Dealer & Review API ──────────────────────────
+  database-api:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    image: bestcars-dealer-api
+    container_name: bestcars-dealer-api
+    ports:
+      - "3030:3030"
+    environment:
+      - MONGO_URL=mongodb://mongo-dealers:27017/
+      - NODE_ENV=${NODE_ENV:-development}
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      mongo-dealers:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
+
+  # ── Car Inventory MongoDB ────────────────────────────────
+  mongo-inventory:
+    image: mongo:7
+    container_name: bestcars-mongo-inventory
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_inventory_data:/data/db
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    profiles: ["dev", "prod"]
+
+  # ── Node.js Car Inventory API ─────────────────────────────
+  carsinventory-api:
+    build:
+      context: ./carsInventory
+      dockerfile: Dockerfile
+    image: bestcars-inventory-api
+    container_name: bestcars-inventory-api
+    ports:
+      - "3050:3050"
+    environment:
+      - MONGO_URL=mongodb://mongo-inventory:27017/
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      mongo-inventory:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
+
+  # ── Flask Sentiment Analyzer ─────────────────────────────
+  sentiment-analyzer:
+    build:
+      context: ./sentiment_analyzer
+      dockerfile: Dockerfile
+    image: bestcars-sentiment
+    container_name: bestcars-sentiment
+    ports:
+      - "5050:5050"
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - REDIS_URL=redis://redis:6379/2
+      - MODEL_CACHE_DIR=/app/model_cache
+    volumes:
+      - sentiment_model_cache:/app/model_cache   # Persist downloaded model
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
+
+# ── Named volumes ─────────────────────────────────────────────
+volumes:
+  mongo_dealers_data:
+  mongo_inventory_data:
+  redis_data:
+  sentiment_model_cache:
+
+# ── Networks ──────────────────────────────────────────────────
+networks:
+  bestcars-net:
+    driver: bridge

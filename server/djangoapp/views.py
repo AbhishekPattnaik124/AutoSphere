@@ -13,12 +13,32 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from .populate import initiate
 from .models import CarMake, CarModel
-from .restapis import get_request, analyze_review_sentiments, post_review, get_inventory
+from .restapis import get_request, analyze_review_sentiments, post_review, searchcars_request
 
 def get_inventory(request, dealer_id):
-    endpoint = "/fetchCars/dealer/"+str(dealer_id)
-    inventory = get_inventory(endpoint)
-    return JsonResponse(inventory, safe=False)
+    if (dealer_id):
+        make = request.GET.get('make')
+        model = request.GET.get('model')
+        year = request.GET.get('year')
+        mileage = request.GET.get('mileage')
+        price = request.GET.get('price')
+
+        endpoint = "/cars/"+str(dealer_id)
+        if (make):
+            endpoint = "/carsbymake/"+str(dealer_id)+"/"+make
+        elif (model):
+            endpoint = "/carsbymodel/"+str(dealer_id)+"/"+model
+        elif (year):
+            endpoint = "/carsbyyear/"+str(dealer_id)+"/"+year
+        elif (mileage):
+            endpoint = "/carsbymaxmileage/"+str(dealer_id)+"/"+mileage
+        elif (price):
+            endpoint = "/carsbyprice/"+str(dealer_id)+"/"+price
+
+        cars = searchcars_request(endpoint)
+        return JsonResponse({"status": 200, "cars": cars})
+    else:
+        return JsonResponse({"status": 400, "message": "Bad Request"})
 
 def add_review(request):
     if(request.user.is_anonymous == False):

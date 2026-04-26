@@ -1,5 +1,5 @@
 {
-  "name": "database",
+  "name": "carsInventory",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -14,7 +14,6 @@
     "express-rate-limit": "^8.4.1",
     "helmet": "^8.1.0",
     "mongodb": "^6.3.0",
-    "mongoose": "^8.0.1",
-    "socket.io": "^4.8.3"
+    "mongoose": "^8.0.1"
   }
 }
