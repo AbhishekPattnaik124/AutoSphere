@@ -178,6 +178,30 @@ services:
     networks:
       - bestcars-net
     profiles: ["dev", "prod"]
+    networks:
+      - bestcars-net
+
+  # ── AI Recommendation Service ────────────────────────────
+  recommend-service:
+    build:
+      context: ./recommend-service
+      dockerfile: Dockerfile
+    image: bestcars-recommend
+    container_name: bestcars-recommend
+    ports:
+      - "3070:3070"
+    environment:
+      - INVENTORY_SERVICE_URL=http://carsinventory-api:3050
+      - REDIS_URL=redis://redis:6379/3
+    depends_on:
+      carsinventory-api:
+        condition: service_started
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - bestcars-net
+    profiles: ["dev", "prod"]
 
 # ── Named volumes ─────────────────────────────────────────────
 volumes:
