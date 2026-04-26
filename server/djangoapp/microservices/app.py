@@ -400,7 +400,49 @@ def dealer_trust_score(dealer_id):
     })
 
 
-# ── Error handlers ────────────────────────────────────────
+# ── Addition Block 7 (G2) — AI Review Summarizer ────────────
+
+@app.post('/summarize')
+def summarize_reviews():
+    """
+    Summarize a list of reviews into a few key points.
+    """
+    data = request.get_json(silent=True)
+    if not data or 'reviews' not in data:
+        return jsonify({"error": "VALIDATION_ERROR", "message": "Request body must be { 'reviews': [...] }"}), 400
+    
+    reviews = data['reviews']
+    if not reviews:
+        return jsonify({"summary": "No reviews available to summarize."})
+
+    # Rule-based summarization (Extracting common themes)
+    text = " ".join(reviews).lower()
+    themes = {
+        "service": ["service", "staff", "wait", "maintenance"],
+        "price": ["price", "cost", "expensive", "deal", "cheap"],
+        "sales": ["sales", "negotiation", "process", "buying"],
+        "facility": ["clean", "coffee", "waiting area", "comfortable"]
+    }
+    
+    found_themes = []
+    for theme, keywords in themes.items():
+        if any(k in text for k in keywords):
+            found_themes.append(theme)
+
+    pos_count = sum(1 for r in reviews if analyze_text(r)['sentiment'] == 'positive')
+    neg_count = len(reviews) - pos_count
+
+    summary = f"Based on {len(reviews)} reviews, this dealer is noted for its {', '.join(found_themes)}. "
+    if pos_count > neg_count:
+        summary += "The majority of customers report a positive experience."
+    else:
+        summary += "Customers have raised several concerns that may need attention."
+
+    return jsonify({
+        "summary": summary,
+        "themes": found_themes,
+        "sentiment_stats": {"positive": pos_count, "negative": neg_count}
+    })
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "NOT_FOUND", "message": str(e)}), 404

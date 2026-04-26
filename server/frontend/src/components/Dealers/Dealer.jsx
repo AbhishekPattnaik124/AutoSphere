@@ -53,6 +53,21 @@ const Dealer = () => {
 
   const stats = getSentimentStats();
 
+  const [aiSummary, setAiSummary] = useState('');
+
+  useEffect(() => {
+    if (reviews.length > 0) {
+      fetch('/sentiment-api/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviews: reviews.map(r => r.review) })
+      })
+      .then(res => res.json())
+      .then(data => setAiSummary(data.summary))
+      .catch(console.error);
+    }
+  }, [reviews]);
+
   if (loading) return <div className="dealer-loader">Loading Dealership Profile...</div>;
 
   return (
@@ -84,6 +99,13 @@ const Dealer = () => {
                 </div>
               </div>
             </div>
+            
+            {aiSummary && (
+              <div className="ai-insight-box glass animate-slide-up">
+                <span className="ai-badge">AI INSIGHT</span>
+                <p>{aiSummary}</p>
+              </div>
+            )}
           </div>
           
           <div className="hero-actions">
