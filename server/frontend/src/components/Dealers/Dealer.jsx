@@ -1,166 +1,157 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import "./Dealers.css";
-import "../assets/style.css";
-import positive_icon from "../assets/positive.png"
-import neutral_icon from "../assets/neutral.png"
-import negative_icon from "../assets/negative.png"
-import review_icon from "../assets/reviewbutton.png"
 import Header from '../Header/Header';
+import positive_icon from "../assets/positive.png";
+import neutral_icon from "../assets/neutral.png";
+import negative_icon from "../assets/negative.png";
+import review_icon from "../assets/reviewbutton.png";
+import './DealerProfile.css';
 
 const Dealer = () => {
-
-
+  const { id } = useParams();
   const [dealer, setDealer] = useState({});
   const [reviews, setReviews] = useState([]);
   const [cars, setCars] = useState([]);
-  const [filteredCars, setFilteredCars] = useState([]);
-  const [unreviewed, setUnreviewed] = useState(false);
-  const [postReview, setPostReview] = useState(<></>)
-
-  const [makeFilter, setMakeFilter] = useState("");
-  const [modelFilter, setModelFilter] = useState("");
-  const [yearFilter, setYearFilter] = useState("");
-
-  const filterCars = () => {
-    let tempCars = cars;
-    if(makeFilter) tempCars = tempCars.filter(car => car.make.toLowerCase().includes(makeFilter.toLowerCase()));
-    if(modelFilter) tempCars = tempCars.filter(car => car.model.toLowerCase().includes(modelFilter.toLowerCase()));
-    if(yearFilter) tempCars = tempCars.filter(car => car.year.toString().includes(yearFilter));
-    setFilteredCars(tempCars);
-  }
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    filterCars();
-  }, [makeFilter, modelFilter, yearFilter, cars]);
+    const fetchData = async () => {
+      try {
+        const [dRes, rRes, iRes] = await Promise.all([
+          fetch(`/djangoapp/dealer/${id}`),
+          fetch(`/djangoapp/reviews/dealer/${id}`),
+          fetch(`/cars-api/cars/${id}`)
+        ]);
+        
+        const dData = await dRes.json();
+        const rData = await rRes.json();
+        const iData = await iRes.json();
 
-  let curr_url = window.location.href;
-  let root_url = curr_url.substring(0,curr_url.indexOf("dealer"));
-  let params = useParams();
-  let id =params.id;
-  let dealer_url = root_url+`djangoapp/dealer/${id}`;
-  let reviews_url = root_url+`djangoapp/reviews/dealer/${id}`;
-  let inventory_url = root_url+`djangoapp/inventory/${id}`;
-  let post_review = root_url+`postreview/${id}`;
-  let search_cars = root_url+`searchcars/${id}`;
-  
-  const get_cars = async ()=>{
-    const res = await fetch(inventory_url, {
-      method: "GET"
-    });
-    const retobj = await res.json();
-    
-    if(Array.isArray(retobj)) {
-      setCars(retobj)
-    }
-  }
-
-  const get_dealer = async ()=>{
-    const res = await fetch(dealer_url, {
-      method: "GET"
-    });
-    const retobj = await res.json();
-    
-    if(retobj.status === 200) {
-      let dealerobjs = Array.from(retobj.dealer)
-      setDealer(dealerobjs[0])
-    }
-  }
-
-  const get_reviews = async ()=>{
-    const res = await fetch(reviews_url, {
-      method: "GET"
-    });
-    const retobj = await res.json();
-    
-    if(retobj.status === 200) {
-      if(retobj.reviews.length > 0){
-        setReviews(retobj.reviews)
-      } else {
-        setUnreviewed(true);
+        setDealer(dData.dealer[0] || {});
+        setReviews(rData.reviews || []);
+        setCars(iData.cars || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    }
-  }
+    };
+    fetchData();
+  }, [id]);
 
-  const senti_icon = (sentiment)=>{
-    let icon = sentiment === "positive"?positive_icon:sentiment==="negative"?negative_icon:neutral_icon;
-    return icon;
-  }
+  const getSentimentStats = () => {
+    if (!reviews.length) return { pos: 0, neu: 100, neg: 0 };
+    const pos = reviews.filter(r => r.sentiment === 'positive').length;
+    const neg = reviews.filter(r => r.sentiment === 'negative').length;
+    const total = reviews.length;
+    return {
+      pos: (pos / total) * 100,
+      neg: (neg / total) * 100,
+      neu: ((total - pos - neg) / total) * 100
+    };
+  };
 
-  useEffect(() => {
-    get_dealer();
-    get_reviews();
-    get_cars();
-    if(sessionStorage.getItem("username")) {
-      setPostReview(<a href={post_review}><img src={review_icon} style={{width:'10%',marginLeft:'10px',marginTop:'10px'}} alt='Post Review'/></a>)
+  const stats = getSentimentStats();
 
+  if (loading) return <div className="dealer-loader">Loading Dealership Profile...</div>;
+
+  return (
+    <div className="dealer-profile-page">
+      <Header />
       
-    }
-  },[]);  
-
-
-return(
-  <div style={{margin:"20px"}}>
-      <Header/>
-      <div style={{marginTop:"10px"}}>
-      <h1 style={{color:"grey"}}>{dealer.full_name}{postReview}</h1>
-      <h4  style={{color:"grey"}}>{dealer['city']},{dealer['address']}, Zip - {dealer['zip']}, {dealer['state']} </h4>
-      <a href={search_cars} style={{marginLeft:"10px", fontSize: "1.2rem", fontWeight: "bold"}}>Search Cars</a>
-      </div>
-      <div style={{marginTop:"30px"}}>
-        <h2 style={{color:"#2c3e50"}}>Car Inventory</h2>
-        <div style={{marginBottom: "20px", display: "flex", gap: "10px"}}>
-          <input type="text" placeholder="Filter Make" value={makeFilter} onChange={(e)=>setMakeFilter(e.target.value)} style={{padding: "8px", borderRadius: "5px", border: "1px solid #ddd"}} />
-          <input type="text" placeholder="Filter Model" value={modelFilter} onChange={(e)=>setModelFilter(e.target.value)} style={{padding: "8px", borderRadius: "5px", border: "1px solid #ddd"}} />
-          <input type="number" placeholder="Filter Year" value={yearFilter} onChange={(e)=>setYearFilter(e.target.value)} style={{padding: "8px", borderRadius: "5px", border: "1px solid #ddd"}} />
-        </div>
-        {filteredCars.length === 0 ? (
-          <p>No cars matching filters.</p>
-        ) : (
-          <div className="inventory_container">
-             <table className="table">
-                <thead>
-                  <tr>
-                    <th>Make</th>
-                    <th>Model</th>
-                    <th>Year</th>
-                    <th>Mileage</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCars.map((car, index) => (
-                    <tr key={index}>
-                      <td>{car.make}</td>
-                      <td>{car.model}</td>
-                      <td>{car.year}</td>
-                      <td>{car.mileage.toLocaleString()}</td>
-                      <td>${car.price ? car.price.toLocaleString() : "N/A"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-             </table>
+      <div className="profile-hero">
+        <div className="profile-container">
+          <div className="hero-content">
+            <span className="location-tag">{dealer.city}, {dealer.state}</span>
+            <h1>{dealer.full_name}</h1>
+            <p className="address">{dealer.address} • Zip {dealer.zip}</p>
+            
+            <div className="hero-stats">
+              <div className="trust-score">
+                <span className="grade">A</span>
+                <span className="label">Trust Grade</span>
+              </div>
+              <div className="sentiment-bar">
+                <div className="bar-label">Customer Satisfaction</div>
+                <div className="multi-bar">
+                  <div className="segment pos" style={{width: `${stats.pos}%`}}></div>
+                  <div className="segment neu" style={{width: `${stats.neu}%`}}></div>
+                  <div className="segment neg" style={{width: `${stats.neg}%`}}></div>
+                </div>
+                <div className="bar-legend">
+                  <span>{Math.round(stats.pos)}% Positive</span>
+                  <span>{Math.round(stats.neg)}% Negative</span>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-
-      <div style={{marginTop:"30px"}}>
-      <h2 style={{color:"#2c3e50"}}>Customer Reviews</h2>
-      <div class="reviews_panel">
-      {reviews.length === 0 && unreviewed === false ? (
-        <text>Loading Reviews....</text>
-      ):  unreviewed === true? <div>No reviews yet! </div> :
-      reviews.map(review => (
-        <div className='review_panel'>
-          <img src={senti_icon(review.sentiment)} className="emotion_icon" alt='Sentiment'/>
-          <div className='review'>{review.review}</div>
-          <div className="reviewer">{review.name} {review.car_make} {review.car_model} {review.car_year}</div>
+          
+          <div className="hero-actions">
+            <button className="btn-primary" onClick={() => window.location.href = `/book/${id}`}>
+              Book Test Drive
+            </button>
+            {sessionStorage.getItem('username') && (
+              <button className="btn-secondary" onClick={() => window.location.href = `/postreview/${id}`}>
+                Post Review
+              </button>
+            )}
+          </div>
         </div>
-      ))}
       </div>
-    </div>  
-  </div>
-)
-}
 
-export default Dealer
+      <div className="profile-container main-content">
+        <section className="inventory-section">
+          <div className="section-header">
+            <h2>Current Inventory</h2>
+            <div className="filters">
+               <input type="text" placeholder="Search models..." />
+            </div>
+          </div>
+          
+          <div className="inventory-grid">
+            {cars.map(car => (
+              <div key={car._id} className="car-card glass">
+                <div className="car-image-placeholder">
+                  <span>🚗</span>
+                </div>
+                <div className="car-details">
+                  <div className="car-header">
+                    <h3>{car.make} {car.model}</h3>
+                    <span className="year">{car.year}</span>
+                  </div>
+                  <div className="car-meta">
+                    <span>{car.mileage.toLocaleString()} miles</span>
+                    <span className="price">${car.price.toLocaleString()}</span>
+                  </div>
+                  <div className="car-actions">
+                    <button className="btn-sm">View Details</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="reviews-section">
+          <h2>Verified Reviews</h2>
+          <div className="reviews-list">
+            {reviews.map((r, i) => (
+              <div key={i} className="review-card glass">
+                <div className="review-header">
+                  <img src={r.sentiment === 'positive' ? positive_icon : r.sentiment === 'negative' ? negative_icon : neutral_icon} alt={r.sentiment} />
+                  <div className="reviewer-info">
+                    <h4>{r.name}</h4>
+                    <span>{r.car_make} {r.car_model} owner</span>
+                  </div>
+                </div>
+                <p>"{r.review}"</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+};
+
+export default Dealer;

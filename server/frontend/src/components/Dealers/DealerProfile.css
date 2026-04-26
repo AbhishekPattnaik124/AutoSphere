@@ -1,0 +1,221 @@
+.dealer-profile-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.profile-hero {
+  background: linear-gradient(to bottom, rgba(99, 102, 241, 0.05), transparent);
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.hero-content {
+  margin-bottom: var(--space-8);
+}
+
+.location-tag {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.hero-content h1 {
+  font-size: var(--font-size-5xl);
+  font-weight: 800;
+  margin-bottom: var(--space-2);
+}
+
+.address {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+}
+
+.hero-stats {
+  display: flex;
+  gap: var(--space-12);
+  margin-top: var(--space-8);
+}
+
+.trust-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.trust-score .grade {
+  font-size: 48px;
+  font-weight: 900;
+  color: #10b981;
+  line-height: 1;
+}
+
+.trust-score .label {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.sentiment-bar {
+  flex: 1;
+  max-width: 400px;
+}
+
+.bar-label {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--color-text-secondary);
+}
+
+.multi-bar {
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.segment.pos { background: #10b981; }
+.segment.neu { background: #f59e0b; }
+.segment.neg { background: #ef4444; }
+
+.bar-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.main-content {
+  padding: var(--space-12) 0;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-12);
+}
+
+@media (max-width: 1000px) {
+  .main-content { grid-template-columns: 1fr; }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-8);
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+.car-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+}
+
+.car-image-placeholder {
+  height: 160px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin-bottom: var(--space-4);
+}
+
+.car-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-2);
+}
+
+.car-header h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.car-header .year {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.car-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+.car-meta .price {
+  color: var(--color-text);
+  font-weight: 800;
+  font-size: var(--font-size-lg);
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.review-card {
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+}
+
+.review-header {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.review-header img {
+  width: 32px;
+}
+
+.reviewer-info h4 {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  margin: 0;
+}
+
+.reviewer-info span {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.dealer-loader {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-weight: 700;
+}

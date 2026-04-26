@@ -1,0 +1,99 @@
+[cmdk-root] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 640px;
+  z-index: 9999;
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.command-palette-container {
+  background: rgba(15, 15, 18, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.command-search-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  gap: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+[cmdk-input] {
+  width: 100%;
+  height: 64px;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  outline: none;
+}
+
+[cmdk-list] {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+[cmdk-group-heading] {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+[cmdk-item] {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all 0.1s;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+[cmdk-item][aria-selected='true'] {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-primary);
+}
+
+[cmdk-item] svg {
+  color: var(--color-text-muted);
+}
+
+[cmdk-item][aria-selected='true'] svg {
+  color: var(--color-primary);
+}
+
+[cmdk-empty] {
+  padding: var(--space-12);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9998;
+}
