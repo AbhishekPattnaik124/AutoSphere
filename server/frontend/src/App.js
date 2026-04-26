@@ -43,12 +43,6 @@ const SharePage       = React.lazy(() => import("./pages/SharePage"));
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--color-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <div style={{ textAlign: 'center' }}>
-const SharePage       = React.lazy(() => import("./pages/SharePage"));
-
-// Skeleton fallback for route transitions
-const PageLoader = () => (
-  <div style={{ minHeight: '100vh', background: 'var(--color-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <div style={{ textAlign: 'center' }}>
       <div className="skeleton" style={{ width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto var(--space-4)' }} />
       <div className="skeleton" style={{ width: '200px', height: '16px', borderRadius: 'var(--radius-md)' }} />
     </div>

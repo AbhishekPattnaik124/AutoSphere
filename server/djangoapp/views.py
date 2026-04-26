@@ -157,6 +157,7 @@ def get_dealer_details(request, dealer_id):
     else:
         return JsonResponse({"status": 400, "message": "Bad Request"})
 
+
 # ── Addition Block 3 — Leaderboard ──────────────────────────
 def get_leaderboard(request):
     """
@@ -170,7 +171,7 @@ def get_leaderboard(request):
     leaderboard = []
     for d in dealerships[:20]:  # Limit to top 20 for performance
         reviews = get_request(f"/fetchReviews/dealer/{d['id']}")
-        
+
         # Calculate sentiment score
         sent_vals = {"positive": 1.0, "neutral": 0.5, "negative": 0.0}
         total_sent = 0
@@ -181,17 +182,22 @@ def get_leaderboard(request):
             avg_sentiment = total_sent / len(reviews)
         else:
             avg_sentiment = 0.5
-        
+
         # Composite score calculation
         trust_score = (avg_sentiment * 70) + (min(len(reviews), 30))
         
         # Map score to Grade A-F
         grade = "F"
-        if trust_score >= 90: grade = "A+"
-        elif trust_score >= 80: grade = "A"
-        elif trust_score >= 70: grade = "B"
-        elif trust_score >= 60: grade = "C"
-        elif trust_score >= 50: grade = "D"
+        if trust_score >= 90:
+            grade = "A+"
+        elif trust_score >= 80:
+            grade = "A"
+        elif trust_score >= 70:
+            grade = "B"
+        elif trust_score >= 60:
+            grade = "C"
+        elif trust_score >= 50:
+            grade = "D"
 
         leaderboard.append({
             "id": d['id'],

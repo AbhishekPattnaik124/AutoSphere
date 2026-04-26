@@ -410,7 +410,7 @@ def summarize_reviews():
     data = request.get_json(silent=True)
     if not data or 'reviews' not in data:
         return jsonify({"error": "VALIDATION_ERROR", "message": "Request body must be { 'reviews': [...] }"}), 400
-    
+
     reviews = data['reviews']
     if not reviews:
         return jsonify({"summary": "No reviews available to summarize."})
@@ -423,7 +423,7 @@ def summarize_reviews():
         "sales": ["sales", "negotiation", "process", "buying"],
         "facility": ["clean", "coffee", "waiting area", "comfortable"]
     }
-    
+
     found_themes = []
     for theme, keywords in themes.items():
         if any(k in text for k in keywords):
@@ -443,6 +443,8 @@ def summarize_reviews():
         "themes": found_themes,
         "sentiment_stats": {"positive": pos_count, "negative": neg_count}
     })
+
+
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "NOT_FOUND", "message": str(e)}), 404
