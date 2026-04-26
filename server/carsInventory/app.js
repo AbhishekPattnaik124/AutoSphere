@@ -145,7 +145,28 @@ app.get('/health', async (req, res) => {
   });
 });
 
-// ── Root ──────────────────────────────────────────────────
+// ── Addition Block 9 (I1) — Chaos Engineering ───────────────
+const CHAOS_MODE = process.env.CHAOS_MODE === 'true';
+
+if (CHAOS_MODE) {
+  console.log('⚠️ CHAOS MODE ENABLED — Injecting synthetic faults');
+  app.use((req, res, next) => {
+    // 10% chance of random 500 error
+    if (Math.random() < 0.1) {
+      console.error('🔥 CHAOS: Injecting 500 Error');
+      return res.status(500).json({ error: 'CHAOS_MONKEY', message: 'Simulated system failure' });
+    }
+    // 20% chance of artificial latency (500ms - 2000ms)
+    if (Math.random() < 0.2) {
+      const delay = Math.floor(Math.random() * 1500) + 500;
+      console.log(`⏱ CHAOS: Injecting ${delay}ms latency`);
+      return setTimeout(next, delay);
+    }
+    next();
+  });
+}
+
+// ── Models ──────────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({ service: 'inventory-api', message: 'Welcome to the Mongoose API', version: '2.0.0' });
 });
