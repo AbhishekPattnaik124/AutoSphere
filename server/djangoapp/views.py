@@ -185,7 +185,7 @@ def get_leaderboard(request):
 
         # Composite score calculation
         trust_score = (avg_sentiment * 70) + (min(len(reviews), 30))
-        
+
         # Map score to Grade A-F
         grade = "F"
         if trust_score >= 90:
