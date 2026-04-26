@@ -1,0 +1,1 @@
+import React from "react"; import Header from "../../components/Header/Header"; const Placeholder = () => (<div><Header /><div style={{padding: "100px", textAlign: "center"}}><h1>Under Construction</h1><p>This feature is coming soon.</p></div></div>); export default Placeholder;

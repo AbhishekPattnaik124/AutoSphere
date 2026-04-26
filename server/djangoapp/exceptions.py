@@ -13,8 +13,6 @@ from functools import wraps
 
 import requests
 from rest_framework.views import exception_handler
-from rest_framework.response import Response
-from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +147,7 @@ class CircuitBreaker:
             result = func(*args, **kwargs)
             self.record_success()
             return result
-        except Exception as e:
+        except Exception:
             self.record_failure()
             raise
 
@@ -215,7 +213,7 @@ def resilient_get(url: str, service_name: str, trace_id: str = None,
                 wait = 2 ** attempt
                 logger.warning(f"[{service_name}] Attempt {attempt} failed, retrying in {wait}s: {e}")
                 time.sleep(wait)
-            except requests.HTTPError as e:
+            except requests.HTTPError:
                 raise   # Don't retry 4xx/5xx HTTP errors
 
     return cb.call(_do_request)

@@ -34,6 +34,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 def log(level, message, **kwargs):
     """Emit a structured JSON log line."""
     entry = {

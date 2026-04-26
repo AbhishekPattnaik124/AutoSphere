@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.http import JsonResponse
@@ -70,6 +69,7 @@ def login_user(request):
         login(request, user)
         data = {"userName": username, "status": "Authenticated"}
     return JsonResponse(data)
+
 
 # Create a `logout_request` view to handle sign out request
 def logout_request(request):
