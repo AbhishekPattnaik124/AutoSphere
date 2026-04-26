@@ -162,7 +162,7 @@ services:
   # ── Flask Sentiment Analyzer ─────────────────────────────
   sentiment-analyzer:
     build:
-      context: ./sentiment_analyzer
+      context: ./djangoapp/microservices
       dockerfile: Dockerfile
     image: bestcars-sentiment
     container_name: bestcars-sentiment
