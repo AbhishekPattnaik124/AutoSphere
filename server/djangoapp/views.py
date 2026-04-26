@@ -157,6 +157,51 @@ def get_dealer_details(request, dealer_id):
     else:
         return JsonResponse({"status": 400, "message": "Bad Request"})
 
-# Create a `add_review` view to submit a review
-# def add_review(request):
-# ...
+# ── Addition Block 3 — Leaderboard ──────────────────────────
+def get_leaderboard(request):
+    """
+    Ranks dealers by a composite Trust Score:
+    Score = (Avg Sentiment * 0.6) + (Review Volume * 0.3) + (Recent Growth * 0.1)
+    """
+    dealerships = get_request("/fetchDealers")
+    if not dealerships:
+        return JsonResponse({"status": 200, "leaderboard": []})
+
+    leaderboard = []
+    for d in dealerships[:20]:  # Limit to top 20 for performance
+        reviews = get_request(f"/fetchReviews/dealer/{d['id']}")
+        
+        # Calculate sentiment score
+        sent_vals = {"positive": 1.0, "neutral": 0.5, "negative": 0.0}
+        total_sent = 0
+        if reviews:
+            for r in reviews:
+                res = analyze_review_sentiments(r['review'])
+                total_sent += sent_vals.get(res.get('sentiment', 'neutral'), 0.5)
+            avg_sentiment = total_sent / len(reviews)
+        else:
+            avg_sentiment = 0.5
+        
+        # Composite score calculation
+        trust_score = (avg_sentiment * 70) + (min(len(reviews), 30))
+        
+        # Map score to Grade A-F
+        grade = "F"
+        if trust_score >= 90: grade = "A+"
+        elif trust_score >= 80: grade = "A"
+        elif trust_score >= 70: grade = "B"
+        elif trust_score >= 60: grade = "C"
+        elif trust_score >= 50: grade = "D"
+
+        leaderboard.append({
+            "id": d['id'],
+            "name": d['full_name'],
+            "city": d['city'],
+            "trust_score": round(trust_score, 1),
+            "review_count": len(reviews),
+            "grade": grade
+        })
+
+    # Sort by trust_score descending
+    leaderboard.sort(key=lambda x: x['trust_score'], reverse=True)
+    return JsonResponse({"status": 200, "leaderboard": leaderboard})

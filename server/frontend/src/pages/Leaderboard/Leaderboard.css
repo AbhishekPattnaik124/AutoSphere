@@ -1,0 +1,124 @@
+.leaderboard-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.leaderboard-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-6);
+}
+
+.leaderboard-header {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.leaderboard-header h1 {
+  font-size: var(--font-size-5xl);
+  font-weight: 800;
+  margin-bottom: var(--space-2);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.leaderboard-header p {
+  color: var(--color-text-muted);
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.list-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 150px 200px 100px;
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.leaderboard-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 150px 200px 100px;
+  align-items: center;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s;
+}
+
+.leaderboard-item:hover {
+  transform: translateX(10px);
+  border-color: var(--color-primary);
+}
+
+.rank {
+  font-weight: 800;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+}
+
+.name-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.reviews {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.location {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.score-block {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.score-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+}
+
+.grade {
+  font-weight: 800;
+  text-align: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.grade-a { color: #10b981; }
+.grade-b { color: #3b82f6; }
+.grade-c { color: #f59e0b; }
+.grade-d { color: #ef4444; }
+
+.leaderboard-loader {
+  text-align: center;
+  padding: 100px;
+  color: var(--color-primary);
+  font-weight: 700;
+}

@@ -23,4 +23,7 @@ urlpatterns = [
     # path for add a review view
     path(route='add_review', view=views.add_review, name='add_review'),
 
+    # path for leaderboard
+    path(route='leaderboard', view=views.get_leaderboard, name='leaderboard'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

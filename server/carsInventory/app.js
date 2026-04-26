@@ -235,6 +235,43 @@ app.get('/carsbyyear/:id/:year', async (req, res) => {
   }
 });
 
+// ── Global Market Trends ──────────────────────────────────
+app.get('/cars/market-trends', async (req, res) => {
+  try {
+    const stats = await Cars.aggregate([
+      {
+        $group: {
+          _id: null,
+          total_inventory: { $sum: 1 },
+          avg_price: { $avg: '$price' },
+          price_ranges: {
+            $push: {
+              $cond: [
+                { $lt: ['$price', 25000] }, 'Economy',
+                { $cond: [{ $lt: ['$price', 50000] }, 'Premium', 'Luxury'] }
+              ]
+            }
+          }
+        }
+      }
+    ]);
+
+    const makeStats = await Cars.aggregate([
+      { $group: { _id: '$make', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    res.json({
+      summary: stats[0] || {},
+      top_makes: makeStats,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'STATS_ERROR', message: error.message });
+  }
+});
+
 // ── Aggregate stats for a dealer ───────────────────────────
 app.get('/cars/stats/:id', async (req, res) => {
   try {
