@@ -19,32 +19,32 @@ const Header = () => {
   const username = sessionStorage.getItem('username');
 
   return (
-    <nav className="main-nav">
+    <nav className="main-nav" aria-label="Main Navigation">
       <div className="nav-container">
-        <div className="nav-brand" onClick={() => window.location.href = "/"}>
-          <span className="brand-icon">🚗</span>
+        <div className="nav-brand" onClick={() => window.location.href = "/"} role="button" tabIndex={0} aria-label="AutoSphere Home">
+          <span className="brand-icon" aria-hidden="true">🚗</span>
           <span className="brand-name">AutoSphere</span>
         </div>
 
-        <ul className="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/contact">Contact</a></li>
-          {username && <li><a href="/dashboard">Dashboard</a></li>}
+        <ul className="nav-links" role="menubar">
+          <li role="none"><a role="menuitem" href="/">Home</a></li>
+          <li role="none"><a role="menuitem" href="/about">About</a></li>
+          <li role="none"><a role="menuitem" href="/contact">Contact</a></li>
+          {username && <li role="none"><a role="menuitem" href="/dashboard">Dashboard</a></li>}
         </ul>
 
         <div className="nav-actions">
-          <NotificationCenter />
+          <NotificationCenter aria-label="Notifications" />
           
           {username ? (
-            <div className="user-menu">
-              <span className="username">{username}</span>
-              <button className="logout-btn" onClick={logout}>Logout</button>
+            <div className="user-menu" aria-label="User Menu">
+              <span className="username" aria-live="polite">{username}</span>
+              <button className="logout-btn" onClick={logout} aria-label="Log Out">Logout</button>
             </div>
           ) : (
-            <div className="auth-links">
-              <a href="/login" className="login-link">Sign In</a>
-              <a href="/register" className="register-btn">Register</a>
+            <div className="auth-links" aria-label="Authentication Links">
+              <a href="/login" className="login-link" aria-label="Sign In">Sign In</a>
+              <a href="/register" className="register-btn" aria-label="Register">Register</a>
             </div>
           )}
         </div>

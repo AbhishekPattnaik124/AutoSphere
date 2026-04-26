@@ -160,7 +160,7 @@ const Dealer = () => {
             {reviews.map((r, i) => (
               <div key={i} className="review-card glass">
                 <div className="review-header">
-                  <img src={r.sentiment === 'positive' ? positive_icon : r.sentiment === 'negative' ? negative_icon : neutral_icon} alt={r.sentiment} />
+                  <img src={r.sentiment === 'positive' ? positive_icon : r.sentiment === 'negative' ? negative_icon : neutral_icon} alt={r.sentiment} loading="lazy" />
                   <div className="reviewer-info">
                     <h4>{r.name}</h4>
                     <span>{r.car_make} {r.car_model} owner</span>

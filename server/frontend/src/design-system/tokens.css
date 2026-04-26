@@ -405,3 +405,31 @@ body {
   border-radius: var(--radius-xl);
 }
 .leaflet-tile { filter: brightness(0.7) saturate(0.8); }
+
+/* ── Accessibility Layer (H2) — High Contrast ───────────────── */
+@media (prefers-contrast: high) {
+  :root {
+    --color-bg: #000000;
+    --color-text: #ffffff;
+    --color-text-muted: #cccccc;
+    --color-text-subtle: #aaaaaa;
+    --color-border: #ffffff;
+    --color-primary: #00ff9d;
+    --color-bg-card: #000000;
+    --color-bg-elevated: #111111;
+  }
+  
+  .glass-card {
+    background: transparent;
+    border: 2px solid white;
+    backdrop-filter: none;
+  }
+
+  .btn-primary {
+    background: white;
+    color: black;
+    border: 2px solid white;
+    font-weight: 900;
+    box-shadow: none;
+  }
+}

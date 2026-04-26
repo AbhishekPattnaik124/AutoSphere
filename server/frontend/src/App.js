@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import './design-system/tokens.css';
 import CommandPalette from './components/CommandPalette/CommandPalette';
+import MobileNav from './components/MobileNav/MobileNav';
 
 // Lazy-loaded routes for code splitting
 const LoginPanel   = React.lazy(() => import("./components/Login/Login"));
@@ -58,6 +59,7 @@ function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <CommandPalette />
+      <MobileNav />
       <Routes>
         <Route path="/login"             element={<LoginPanel />} />
         <Route path="/register"          element={<Register />} />
