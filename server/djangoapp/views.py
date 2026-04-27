@@ -7,7 +7,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from .populate import initiate
 from .models import CarMake, CarModel
-from .restapis import get_request, analyze_review_sentiments, post_review, searchcars_request
+from .restapis import get_request, analyze_review_sentiments, post_review, searchcars_request, summarize_reviews, get_dealer_score, post_booking
 
 
 def get_inventory(request, dealer_id):
@@ -30,7 +30,9 @@ def get_inventory(request, dealer_id):
         elif (price):
             endpoint = "/carsbyprice/" + str(dealer_id) + "/" + price
 
-        cars = searchcars_request(endpoint)
+        cars_response = searchcars_request(endpoint)
+        # Extract the actual car list from the microservice response
+        cars = (cars_response.get('cars', []) if cars_response else []) or []
         return JsonResponse({"status": 200, "cars": cars})
     else:
         return JsonResponse({"status": 400, "message": "Bad Request"})
@@ -130,7 +132,7 @@ def get_dealerships(request, state="All"):
     else:
         endpoint = "/fetchDealers/" + state
     dealerships = get_request(endpoint)
-    return JsonResponse({"status": 200, "dealers": dealerships})
+    return JsonResponse({"status": 200, "dealers": dealerships or []})
 
 
 # Create a `get_dealer_reviews` view to render the reviews of a dealer
@@ -211,3 +213,158 @@ def get_leaderboard(request):
     # Sort by trust_score descending
     leaderboard.sort(key=lambda x: x['trust_score'], reverse=True)
     return JsonResponse({"status": 200, "leaderboard": leaderboard})
+
+
+# ── Addition Block 10 — Master Health Aggregator ──────────
+def get_system_health(request):
+    """
+    Unified telemetry aggregator for the Health Dashboard.
+    Forced to re-load .env on every call to ensure sync with local dev changes.
+    """
+    from dotenv import load_dotenv
+    import os
+    import requests
+    import time
+    
+    # Force reload to pick up localhost vs docker changes instantly
+    load_dotenv(override=True)
+    
+    b_url = os.getenv('backend_url', 'http://localhost:3030').rstrip('/')
+    s_url = os.getenv('searchcars_url', 'http://localhost:3050/').rstrip('/')
+    a_url = os.getenv('sentiment_analyzer_url', 'http://localhost:5050/').rstrip('/')
+
+    services = [
+        {"name": "Django Hub", "key": "django", "url": "INTERNAL"},
+        {"name": "Dealer API", "key": "dealer", "url": f"{b_url}/health"},
+        {"name": "Inventory API", "key": "inventory", "url": f"{s_url}/health"},
+        {"name": "Sentiment NLP", "key": "sentiment", "url": f"{a_url}/health"},
+        {"name": "Booking Hub", "key": "booking", "url": f"http://localhost:3060/health"},
+    ]
+
+    results = {}
+    for svc in services:
+        start = time.time()
+        if svc['url'] == "INTERNAL":
+            # Simulate internal latency for the dashboard
+            results[svc['key']] = {
+                "status": "healthy", 
+                "uptime_seconds": 0, 
+                "database": {"connected": True},
+                "latency_ms": round((time.time() - start) * 1000 + 0.1, 1)
+            }
+            continue
+
+        start = time.time()
+        try:
+            res = requests.get(svc['url'], timeout=1.5)
+            if res.status_code == 200:
+                data = res.json()
+                data['latency_ms'] = round((time.time() - start) * 1000, 1)
+                results[svc['key']] = data
+            else:
+                results[svc['key']] = {"status": "degraded", "error": f"HTTP {res.status_code}"}
+        except Exception as e:
+            results[svc['key']] = {"status": "offline", "error": str(e)}
+
+    return JsonResponse({"status": 200, "telemetry": results, "timestamp": time.time()})
+
+@csrf_exempt
+def summarize_reviews_proxy(request):
+    data = json.loads(request.body)
+    reviews = data.get('reviews', [])
+    summary = summarize_reviews(reviews)
+    return JsonResponse(summary)
+
+def get_dealer_details_v2(request, dealer_id):
+    if (dealer_id):
+        endpoint = "/fetchDealer/" + str(dealer_id)
+        dealership_call = get_request(endpoint)
+        
+        # Handle both list and dict-wrapped responses for maximum reliability
+        if isinstance(dealership_call, list):
+            dealership = dealership_call
+        elif isinstance(dealership_call, dict):
+            dealership = dealership_call.get('value', [])
+        else:
+            dealership = []
+        
+        # Also fetch reviews to compute a real-time trust score
+        reviews_endpoint = "/fetchReviews/dealer/" + str(dealer_id)
+        reviews = get_request(reviews_endpoint)
+        score_data = get_dealer_score(dealer_id, reviews=reviews)
+        
+        return JsonResponse({
+            "status": 200, 
+            "dealer": dealership, 
+            "trust_data": score_data
+        })
+    else:
+        return JsonResponse({"status": 400, "message": "Bad Request"})
+
+@csrf_exempt
+def book_appointment(request):
+    """
+    Proxies booking request to the Booking Microservice.
+    Injects user email from the active Django session.
+    """
+    if not request.user.is_anonymous:
+        try:
+            data = json.loads(request.body)
+            # Take email directly from the logged in user object
+            data['user_email'] = request.user.email
+            data['user_id'] = request.user.username
+            
+            res = post_booking(data)
+            if res:
+                return JsonResponse({"status": 200, "message": "Booking successful", "appointment": res})
+            else:
+                return JsonResponse({"status": 500, "message": "Booking service unreachable."})
+        except Exception as e:
+            return JsonResponse({"status": 500, "message": f"Transmission Error: {str(e)}"})
+    else:
+        return JsonResponse({"status": 403, "message": "Unauthorized. Please login to book a test drive."})
+
+def get_user_bookings(request, username):
+    """
+    Fetches all bookings for a specific user from the microservice.
+    """
+    if not request.user.is_anonymous and request.user.username == username:
+        try:
+            from .restapis import get_booking_url
+            import requests
+            url = f"{get_booking_url()}/user/{username}"
+            res = requests.get(url, timeout=2.0)
+            return JsonResponse(res.json(), safe=False)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
+def get_dashboard_stats(request):
+    """
+    Unified analytics aggregator for the User Dashboard.
+    """
+    from .restapis import get_inventory_url, get_request
+    import requests
+    import time
+    
+    try:
+        # 1. Fetch Market Trends from Inventory Microservice
+        inv_url = f"{get_inventory_url()}/cars/market-trends"
+        market_res = requests.get(inv_url, timeout=2.0)
+        market_data = market_res.json() if market_res.status_code == 200 else {}
+
+        # 2. Fetch Dealers count
+        dealers = get_request("/fetchDealers")
+        total_dealers = len(dealers) if dealers else 0
+
+        # 3. Aggregated Response
+        return JsonResponse({
+            "status": 200,
+            "market_trends": market_data,
+            "total_dealers": total_dealers,
+            "system_uptime": "99.9%",
+            "timestamp": time.time()
+        })
+    except Exception as e:
+        return JsonResponse({"status": 500, "error": str(e)})

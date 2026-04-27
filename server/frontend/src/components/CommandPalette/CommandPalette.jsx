@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Command } from 'cmdk';
 import { 
   Search, Car, MapPin, BarChart3, Settings, 
-  Home, Info, Phone, Calendar, User 
+  Home, Info, Phone, Calendar, User, Zap, Activity
 } from 'lucide-react';
 import './CommandPalette.css';
 
 const CommandPalette = () => {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [dealers, setDealers] = useState([]);
+  const [cars, setCars] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const down = (e) => {
@@ -21,58 +26,94 @@ const CommandPalette = () => {
     return () => document.removeEventListener('keydown', down);
   }, []);
 
-  const navigate = (path) => {
+  useEffect(() => {
+    if (open) {
+      const fetchData = async () => {
+        try {
+          const [dRes, cRes] = await Promise.all([
+            fetch('/djangoapp/get_dealers'),
+            fetch('/djangoapp/get_cars')
+          ]);
+          const dData = await dRes.json();
+          const cData = await cRes.json();
+          setDealers(dData.dealers || []);
+          setCars(cData.CarModels || []);
+        } catch (err) {
+          console.error('Palette fetch failed', err);
+        }
+      };
+      fetchData();
+    }
+  }, [open]);
+
+  const handleSelect = (path) => {
     setOpen(false);
-    window.location.href = path;
+    navigate(path);
   };
 
   return (
     <Command.Dialog open={open} onOpenChange={setOpen} label="Global Command Menu">
-      <div className="command-palette-container glass">
+      <div className="command-palette-container luxury-palette">
         <div className="command-search-wrapper">
-          <Search size={18} />
-          <Command.Input placeholder="Search everything... (Dealers, AI, Market)" />
+          <Search size={18} className="gold-text" />
+          <Command.Input 
+            placeholder="Search dealers, cars, or systems... (CMD+K)" 
+            value={query}
+            onValueChange={setQuery}
+          />
         </div>
 
         <Command.List>
-          <Command.Empty>No results found.</Command.Empty>
+          <Command.Empty>No matches found in the network.</Command.Empty>
 
-          <Command.Group heading="Navigation">
-            <Command.Item onSelect={() => navigate('/')}>
-              <Home size={16} /> <span>Home</span>
+          <Command.Group heading="Strategic Navigation">
+            <Command.Item onSelect={() => handleSelect('/')}>
+              <Home size={16} /> <span>Home Overview</span>
             </Command.Item>
-            <Command.Item onSelect={() => navigate('/dealers')}>
-              <MapPin size={16} /> <span>Find Dealerships</span>
+            <Command.Item onSelect={() => handleSelect('/advancements')}>
+              <Zap size={16} className="gold-text" /> <span className="gold-text">Elite Advancements</span>
             </Command.Item>
-            <Command.Item onSelect={() => navigate('/dashboard')}>
-              <User size={16} /> <span>User Dashboard</span>
+            <Command.Item onSelect={() => handleSelect('/dealers')}>
+              <MapPin size={16} /> <span>Network Hub (Dealers)</span>
             </Command.Item>
           </Command.Group>
 
-          <Command.Group heading="Intelligence & Analytics">
-            <Command.Item onSelect={() => navigate('/recommendations')}>
-              <Car size={16} /> <span>AI Car Recommendations</span>
-            </Command.Item>
-            <Command.Item onSelect={() => navigate('/market-trends')}>
-              <BarChart3 size={16} /> <span>Market Trends Dashboard</span>
-            </Command.Item>
-            <Command.Item onSelect={() => navigate('/leaderboard')}>
-              <BarChart3 size={16} /> <span>Dealer Leaderboard</span>
-            </Command.Item>
-          </Command.Group>
+          {dealers.length > 0 && (
+            <Command.Group heading="Partner Dealerships">
+              {dealers.filter(d => d.full_name.toLowerCase().includes(query.toLowerCase())).slice(0, 5).map(dealer => (
+                <Command.Item key={dealer.id} onSelect={() => handleSelect(`/dealer/${dealer.id}`)}>
+                  <MapPin size={16} /> <span>{dealer.full_name} ({dealer.city})</span>
+                </Command.Item>
+              ))}
+            </Command.Group>
+          )}
 
-          <Command.Group heading="Services">
-            <Command.Item onSelect={() => navigate('/about')}>
-              <Info size={16} /> <span>About AutoSphere</span>
+          {cars.length > 0 && (
+            <Command.Group heading="Luxury Inventory">
+              {cars.filter(c => c.CarModel.toLowerCase().includes(query.toLowerCase())).slice(0, 5).map((car, idx) => (
+                <Command.Item key={idx} onSelect={() => handleSelect(`/dealers`)}>
+                  <Car size={16} /> <span>{car.CarMake} {car.CarModel}</span>
+                </Command.Item>
+              ))}
+            </Command.Group>
+          )}
+
+          <Command.Group heading="Intelligence Center">
+            <Command.Item onSelect={() => handleSelect('/recommendations')}>
+              <Zap size={16} /> <span>AI Concierge</span>
             </Command.Item>
-            <Command.Item onSelect={() => navigate('/contact')}>
-              <Phone size={16} /> <span>Contact Support</span>
+            <Command.Item onSelect={() => handleSelect('/market-trends')}>
+              <BarChart3 size={16} /> <span>Market Pulse</span>
             </Command.Item>
-            <Command.Item onSelect={() => navigate('/health-dashboard')}>
-              <Settings size={16} /> <span>System Health</span>
+            <Command.Item onSelect={() => handleSelect('/leaderboard')}>
+              <Activity size={16} /> <span>Global Leaderboard</span>
             </Command.Item>
           </Command.Group>
         </Command.List>
+        
+        <div className="command-footer">
+          Press <kbd>ESC</kbd> to exit • <kbd>ENTER</kbd> to select
+        </div>
       </div>
     </Command.Dialog>
   );

@@ -75,6 +75,7 @@ model_cache/
 
 # ── Docker volumes / data ────────────────────────────────
 mongo_data/
+server/database_data/
 
 # ── Misc ──────────────────────────────────────────────────
 .DS_Store

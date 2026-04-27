@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const redis = require('redis');
 const { v4: uuidv4 } = require('uuid');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -27,6 +28,7 @@ redisClient.connect().catch(console.error);
 const AppointmentSchema = new mongoose.Schema({
   booking_id: { type: String, default: uuidv4, unique: true },
   user_id: { type: String, required: true },
+  user_email: { type: String, required: true },
   dealer_id: { type: Number, required: true },
   car_id: { type: String, required: true },
   car_name: { type: String, required: true },
@@ -48,14 +50,15 @@ app.get('/health', (req, res) => {
 // Book an appointment
 app.post('/book', async (req, res) => {
   try {
-    const { user_id, dealer_id, car_id, car_name, booking_date, notes } = req.body;
+    const { user_id, user_email, dealer_id, car_id, car_name, booking_date, notes } = req.body;
     
-    if (!user_id || !dealer_id || !car_id || !booking_date) {
+    if (!user_id || !user_email || !dealer_id || !car_id || !booking_date) {
       return res.status(400).json({ error: 'MISSING_FIELDS', message: 'All fields are required' });
     }
 
     const appointment = new Appointment({
       user_id,
+      user_email,
       dealer_id,
       car_id,
       car_name,
@@ -65,11 +68,22 @@ app.post('/book', async (req, res) => {
 
     await appointment.save();
 
-    // Publish event for Notification Service
-    await redisClient.publish('booking_events', JSON.stringify({
+    // 1. Publish event for Notification Service (Redis)
+    try {
+      await redisClient.publish('booking_events', JSON.stringify({
+        type: 'BOOKING_CREATED',
+        data: appointment
+      }));
+    } catch (redisErr) {
+      console.warn('⚠️ Redis unreachable, using HTTP fallback');
+    }
+
+    // 2. Direct HTTP Fallback (Ensures email delivery if Redis is down)
+    const NOTIFICATION_URL = process.env.NOTIFICATION_URL || 'http://localhost:3080/notify';
+    axios.post(NOTIFICATION_URL, {
       type: 'BOOKING_CREATED',
       data: appointment
-    }));
+    }).catch(err => console.error('❌ Notification Fallback Failed:', err.message));
 
     res.status(201).json({ message: 'Booking successful', appointment });
   } catch (error) {

@@ -175,12 +175,13 @@ def get_circuit_breaker(service_name: str) -> CircuitBreaker:
 # ══════════════════════════════════════════════════════════
 
 def resilient_get(url: str, service_name: str, trace_id: str = None,
-                  max_retries: int = 3, timeout: int = 10) -> dict:
+                  max_retries: int = 3, timeout: int = 10, **kwargs) -> dict:
     """
     Perform a GET request with:
       - Circuit breaker protection
       - Exponential backoff retry (up to max_retries)
       - Trace ID propagation
+      - Support for query parameters via **kwargs
 
     Args:
         url:          Full URL to GET.
@@ -203,7 +204,7 @@ def resilient_get(url: str, service_name: str, trace_id: str = None,
     def _do_request():
         for attempt in range(1, max_retries + 1):
             try:
-                response = requests.get(url, headers=headers, timeout=timeout)
+                response = requests.get(url, headers=headers, timeout=timeout, params=kwargs)
                 response.raise_for_status()
                 logger.debug(f"[{service_name}] GET {url} → {response.status_code} (attempt {attempt})")
                 return response.json()

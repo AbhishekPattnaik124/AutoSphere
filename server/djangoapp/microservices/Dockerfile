@@ -17,7 +17,7 @@ RUN pip install --upgrade pip \
  && pip install --prefix=/install --no-cache-dir -r requirements.txt
 
 # Pre-download NLTK VADER data
-RUN python -c "import nltk; nltk.download('vader_lexicon', quiet=True)"
+RUN PYTHONPATH=/install/lib/python3.11/site-packages python -c "import nltk; nltk.download('vader_lexicon', quiet=True)"
 
 # ── Runtime stage ─────────────────────────────────────────
 FROM python:3.11-slim-bookworm AS runtime

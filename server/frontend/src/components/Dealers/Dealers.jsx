@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import Header from '../Header/Header';
-import '../../design-system/tokens.css';
+import { Search, Map as MapIcon, Table as TableIcon, Star, ChevronRight } from 'lucide-react';
+import PageTransition from '../PageTransition';
 import './Dealers.css';
-import reviewIcon from '../assets/reviewicon.png';
 
-// Fix Leaflet default icon broken by webpack
+// Fix Leaflet default icon
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -15,69 +15,12 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-// ── Custom debounce hook ────────────────────────────────────
-function useDebounce(value, delay = 300) {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-  return debounced;
-}
-
-// ── Skeleton loader ─────────────────────────────────────────
-function DealerSkeleton() {
-  return (
-    <tr>
-      {[1, 2, 3, 4, 5].map(i => (
-        <td key={i} style={{ padding: 'var(--space-3) var(--space-4)' }}>
-          <div className="skeleton" style={{ height: '20px', width: i === 1 ? '40px' : '100%', borderRadius: 'var(--radius-md)' }} />
-        </td>
-      ))}
-    </tr>
-  );
-}
-
-// ── Empty state illustration ────────────────────────────────
-function EmptyState({ searchTerm }) {
-  return (
-    <tr>
-      <td colSpan={6} style={{ padding: 'var(--space-16)', textAlign: 'center' }}>
-        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ margin: '0 auto var(--space-4)', display: 'block' }}>
-          <circle cx="40" cy="40" r="36" fill="rgba(0,250,154,0.08)" stroke="rgba(0,250,154,0.2)" strokeWidth="2"/>
-          <path d="M28 52C28 52 32 42 40 42C48 42 52 52 52 52" stroke="rgba(0,250,154,0.4)" strokeWidth="2" strokeLinecap="round"/>
-          <circle cx="33" cy="34" r="3" fill="rgba(0,250,154,0.4)"/>
-          <circle cx="47" cy="34" r="3" fill="rgba(0,250,154,0.4)"/>
-        </svg>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)' }}>
-          No dealerships found
-        </p>
-        <p style={{ color: 'var(--color-text-subtle)', fontSize: 'var(--font-size-sm)', marginTop: 'var(--space-2)' }}>
-          {searchTerm ? `No results for "${searchTerm}". Try a different state.` : 'No dealers available.'}
-        </p>
-      </td>
-    </tr>
-  );
-}
-
 const Dealers = () => {
-  const [dealersList, setDealersList] = useState([]);
   const [origDealersList, setOrigDealersList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState('table'); // 'table' | 'map'
-
-  const debouncedSearch = useDebounce(searchTerm, 300);
+  const [viewMode, setViewMode] = useState('table');
   const isLoggedIn = sessionStorage.getItem('username') != null;
-
-  // Filter dealers based on debounced search term
-  const filteredDealers = debouncedSearch.trim()
-    ? origDealersList.filter(d =>
-        d.state?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        d.city?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        d.full_name?.toLowerCase().includes(debouncedSearch.toLowerCase())
-      )
-    : dealersList;
 
   const fetchDealers = useCallback(async () => {
     try {
@@ -85,9 +28,7 @@ const Dealers = () => {
       const res = await fetch('/djangoapp/get_dealers');
       const data = await res.json();
       if (data.status === 200) {
-        const all = Array.from(data.dealers);
-        setDealersList(all);
-        setOrigDealersList(all);
+        setOrigDealersList(data.dealers || []);
       }
     } catch (e) {
       console.error('Failed to fetch dealers:', e);
@@ -98,155 +39,141 @@ const Dealers = () => {
 
   useEffect(() => { fetchDealers(); }, [fetchDealers]);
 
-  // Seed map coords (fallback if not in data)
-  const mapDealers = filteredDealers.filter(d => d.lat && d.lng);
+  const filteredDealers = (origDealersList || []).filter(d =>
+    d.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    d.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    d.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
-      <Header />
-
-      {/* ── Hero Banner ───────────────────────────────────── */}
-      <div className="gradient-hero" style={{ padding: 'var(--space-16) var(--space-6) var(--space-12)', textAlign: 'center' }}>
-        <p style={{ color: 'var(--color-primary)', fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-semibold)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 'var(--space-4)' }}>
-          Nationwide Network
-        </p>
-        <h1 style={{ fontSize: 'var(--font-size-5xl)', fontWeight: 'var(--font-weight-black)', marginBottom: 'var(--space-4)', background: 'linear-gradient(135deg, #fff, var(--color-primary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          Find Your Dealership
-        </h1>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-lg)', maxWidth: '500px', margin: '0 auto var(--space-8)' }}>
-          {origDealersList.length} dealerships across the country. Search by state, city, or name.
-        </p>
-
-        {/* Search input */}
-        <div style={{ maxWidth: '480px', margin: '0 auto', position: 'relative' }}>
-          <span style={{ position: 'absolute', left: 'var(--space-4)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-subtle)', pointerEvents: 'none' }}>🔍</span>
-          <input
-            className="input"
-            type="text"
-            placeholder="Search by state, city, or dealer name..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            aria-label="Search dealerships"
-            style={{ paddingLeft: 'var(--space-10)', fontSize: 'var(--font-size-base)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(0,250,154,0.3)' }}
-          />
-        </div>
-      </div>
-
-      {/* ── Content ───────────────────────────────────────── */}
-      <div style={{ padding: 'var(--space-8) var(--space-6)', maxWidth: '1280px', margin: '0 auto' }}>
-
-        {/* View toggle + result count */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
-            {loading ? 'Loading...' : `${filteredDealers.length} dealership${filteredDealers.length !== 1 ? 's' : ''} found`}
-          </p>
-          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-            <button
-              className={`btn btn-ghost`}
-              onClick={() => setViewMode('table')}
-              aria-pressed={viewMode === 'table'}
-              style={viewMode === 'table' ? { borderColor: 'var(--color-primary)', color: 'var(--color-primary)' } : {}}
+    <PageTransition>
+      <div className="dealers-portal">
+        <header className="portal-hero">
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
             >
-              ☰ Table
-            </button>
-            <button
-              className={`btn btn-ghost`}
-              onClick={() => setViewMode('map')}
-              aria-pressed={viewMode === 'map'}
-              style={viewMode === 'map' ? { borderColor: 'var(--color-primary)', color: 'var(--color-primary)' } : {}}
-            >
-              🗺 Map
-            </button>
-          </div>
-        </div>
-
-        {/* ── Map view ─────────────────────────────────────── */}
-        {viewMode === 'map' && (
-          <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', border: '1px solid var(--color-border)', marginBottom: 'var(--space-8)', height: '450px' }}>
-            <MapContainer
-              center={[39.8283, -98.5795]}
-              zoom={4}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              {mapDealers.map(dealer => (
-                <Marker key={dealer.id} position={[dealer.lat, dealer.lng]}>
-                  <Popup>
-                    <strong>{dealer.full_name}</strong><br />
-                    {dealer.city}, {dealer.state}<br />
-                    <a href={`/dealer/${dealer.id}`}>View Details →</a>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-            {mapDealers.length === 0 && (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-card)', borderRadius: 'var(--radius-xl)', color: 'var(--color-text-muted)' }}>
-                Map coordinates not available for current dealers.
+              <span className="section-label">Global Network</span>
+              <h1 className="gold-text">Elite Retailers.</h1>
+              <p className="hero-desc">Connecting you with the world's most prestigious automotive dealerships.</p>
+              
+              <div className="search-box-luxury glass-card">
+                <Search size={20} className="search-icon" />
+                <input 
+                  type="text" 
+                  placeholder="Search by state, city, or dealership name..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-            )}
+            </motion.div>
           </div>
-        )}
+        </header>
 
-        {/* ── Table view ───────────────────────────────────── */}
-        {viewMode === 'table' && (
-          <div style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', overflow: 'hidden' }}>
-            <table className="data-table" role="grid" aria-label="Dealerships list">
-              <thead>
-                <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">Dealer Name</th>
-                  <th scope="col">City</th>
-                  <th scope="col">Address</th>
-                  <th scope="col">Zip</th>
-                  <th scope="col">State</th>
-                  {isLoggedIn && <th scope="col">Actions</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {loading
-                  ? Array.from({ length: 6 }).map((_, i) => <DealerSkeleton key={i} />)
-                  : filteredDealers.length === 0
-                    ? <EmptyState searchTerm={debouncedSearch} />
-                    : filteredDealers.map(dealer => (
-                      <tr key={dealer.id}>
-                        <td style={{ color: 'var(--color-text-subtle)', fontSize: 'var(--font-size-sm)' }}>#{dealer.id}</td>
+        <main className="container portal-content">
+          <div className="controls-bar">
+            <div className="results-count">
+              <span className="gold-text">{filteredDealers.length}</span> Locations Synchronized
+            </div>
+            <div className="view-toggles">
+              <button 
+                className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+                onClick={() => setViewMode('table')}
+              >
+                <TableIcon size={16} /> List View
+              </button>
+              <button 
+                className={`toggle-btn ${viewMode === 'map' ? 'active' : ''}`}
+                onClick={() => setViewMode('map')}
+              >
+                <MapIcon size={16} /> Geo View
+              </button>
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {viewMode === 'table' ? (
+              <motion.div 
+                key="table"
+                className="table-container"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <table className="luxury-table">
+                  <thead>
+                    <tr>
+                      <th>Dealership</th>
+                      <th>Location</th>
+                      <th>Status</th>
+                      {isLoggedIn && <th>Engagement</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDealers.map((dealer, i) => (
+                      <motion.tr 
+                        key={dealer.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.03 }}
+                      >
                         <td>
-                          <a href={`/dealer/${dealer.id}`} style={{ color: 'var(--color-primary)', fontWeight: 'var(--font-weight-semibold)', textDecoration: 'none', transition: 'opacity var(--transition-fast)' }}
-                            onMouseOver={e => e.target.style.opacity = '0.7'}
-                            onMouseOut={e => e.target.style.opacity = '1'}>
-                            {dealer.full_name}
-                          </a>
+                          <div className="dealer-name-cell">
+                            <span className="dealer-id">#{dealer.id}</span>
+                            <a href={`/dealer/${dealer.id}`} className="dealer-link">{dealer.full_name}</a>
+                          </div>
                         </td>
-                        <td>{dealer.city}</td>
-                        <td style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>{dealer.address}</td>
-                        <td style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>{dealer.zip}</td>
                         <td>
-                          <span className="badge badge-primary">{dealer.state}</span>
+                          <div className="location-cell">
+                            <span className="city">{dealer.city}</span>
+                            <span className="state-badge">{dealer.state}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="status-tag online">Active</span>
                         </td>
                         {isLoggedIn && (
                           <td>
-                            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-                              <a href={`/postreview/${dealer.id}`} aria-label={`Review ${dealer.full_name}`}>
-                                <img src={reviewIcon} alt="Post Review" loading="lazy" style={{ width: '28px', opacity: 0.8, transition: 'opacity var(--transition-fast)', filter: 'hue-rotate(130deg)' }}
-                                  onMouseOver={e => e.target.style.opacity = '1'}
-                                  onMouseOut={e => e.target.style.opacity = '0.8'} />
-                              </a>
-                              <a href={`/book/${dealer.id}`} className="btn-book-sm">Book</a>
+                            <div className="action-cell">
+                              <a href={`/postreview/${dealer.id}`} className="icon-action"><Star size={18} /></a>
+                              <a href={`/book/${dealer.id}`} className="btn-luxury btn-gold sm">Book</a>
                             </div>
                           </td>
                         )}
-                      </tr>
-                    ))
-                }
-              </tbody>
-            </table>
-          </div>
-        )}
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="map"
+                className="map-container-luxury glass-card"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.05 }}
+              >
+                <MapContainer center={[39.8283, -98.5795]} zoom={4} style={{ height: '100%', width: '100%' }}>
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  {filteredDealers.filter(d => d.lat && d.lng).map(dealer => (
+                    <Marker key={dealer.id} position={[dealer.lat, dealer.lng]}>
+                      <Popup className="luxury-popup">
+                        <div className="popup-content">
+                          <h4>{dealer.full_name}</h4>
+                          <p>{dealer.city}, {dealer.state}</p>
+                          <a href={`/dealer/${dealer.id}`}>View Details <ChevronRight size={14} /></a>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

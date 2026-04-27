@@ -170,11 +170,7 @@ SIMPLE_JWT = {
 }
 
 # ── CORS ───────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS_RAW = os.getenv(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://localhost:8000,http://localhost'
-)
-CORS_ALLOWED_ORIGINS = [o.strip() for o in CORS_ALLOWED_ORIGINS_RAW.split(',')]
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # ── OpenAPI / Swagger ──────────────────────────────────────

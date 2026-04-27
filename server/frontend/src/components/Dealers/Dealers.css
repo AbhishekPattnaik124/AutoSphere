@@ -1,134 +1,199 @@
-table{
-    margin:5px;
-    padding:10px;
-    border: #dee2e6 solid 1px;
-    width:100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  
-  td{
-    padding:15px;
-    align-self: center;
-    border-bottom: solid #eee .5px;
-    text-align: center;
-    font-size: 1rem;
-    color: #444;
-  }
-  
-  .review_panel{
-    display: flex;
-    flex-direction: column;
-    border: 2px solid purple;
-    position: relative;
-    height: 350px;
-    width: 280px;
-    padding: 20px;
-    border-radius: 15px; 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 25px;
-    background-color: #fff;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    justify-content: flex-start;
-  }
-
-  .badge-primary {
-  background: rgba(0, 250, 154, 0.1);
-  color: var(--color-primary);
-  border: 1px solid rgba(0, 250, 154, 0.2);
+.dealers-portal {
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, #1a1a1a, #0a0a0a);
+  color: #fff;
 }
 
-.btn-book-sm {
-  text-decoration: none;
-  background: var(--gradient-primary);
+.portal-hero {
+  padding: 100px 0 60px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(197, 160, 89, 0.05) 0%, transparent 100%);
+}
+
+.gold-text {
+  font-size: 4rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #fff, var(--color-gold, #c5a059));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+}
+
+.hero-desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+.search-box-luxury {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.search-box-luxury:focus-within {
+  border-color: #c5a059;
+  box-shadow: 0 0 30px rgba(197, 160, 89, 0.2);
+}
+
+.search-icon {
+  color: #c5a059;
+}
+
+.search-box-luxury input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 20px 16px;
   color: white;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 4px;
+  font-size: 1.1rem;
+  outline: none;
+}
+
+/* ── Controls ────────────────────────────────────────── */
+.controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.results-count {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.view-toggles {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+  background: #c5a059;
+  color: #000;
+  box-shadow: 0 5px 15px rgba(197, 160, 89, 0.3);
+}
+
+/* ── Luxury Table ─────────────────────────────────────── */
+.luxury-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 1rem;
+}
+
+.luxury-table th {
+  text-align: left;
+  padding: 0 2rem;
+  font-size: 0.75rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: transform 0.2s;
+  letter-spacing: 0.25em;
+  color: #c5a059;
+  opacity: 0.8;
 }
 
-.btn-book-sm:hover {
-  transform: scale(1.05);
-  color: white;
+.luxury-table tr td {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-  .review_panel:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
+.luxury-table tr td:first-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px 0 0 20px;
+}
 
-  .postreview{
-    margin: 20px;
-    padding: 10px;
-    font-size: 1.1rem;
-    font-weight: 500;
-  }
+.luxury-table tr td:last-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0 20px 20px 0;
+}
 
-  th{
-    padding: 15px;
-    background-color: #f8f9fa;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2c3e50;
-    border-bottom: 2px solid #dee2e6;
-  }
+.luxury-table tr:hover td {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #c5a059;
+  transform: scale(1.01);
+}
 
-  .reviews_panel {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 25px;
-    margin-top: 30px;
-    justify-content: flex-start;
-  }
+.dealer-link {
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
 
-  .reviewer {
-    margin-top: 15px;
-    font-weight: 600;
-    color: #7f8c8d;
-    font-size: 18px;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
-  }
+.dealer-link:hover {
+  color: #c5a059;
+}
 
-  .review {
-    margin-top: 10px;
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #34495e;
-    flex-grow: 1;
-    overflow-y: auto;
-    font-style: italic;
-    text-align: center;
-  }
+.state-badge {
+  background: rgba(197, 160, 89, 0.1);
+  color: #c5a059;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  border: 1px solid rgba(197, 160, 89, 0.2);
+}
 
-  .emotion_icon {
-    width: 45px;
-    height: 45px;
-    padding: 5px;
-    border-radius: 50%;
-    background-color: #f0f3f4;
-    margin-bottom: 10px;
-    align-self: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
+.btn-luxury {
+  background: #c5a059;
+  color: #000;
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-weight: 800;
+  text-decoration: none;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
 
-  .review_icon {
-    width: 32px;
-    transition: transform 0.2s ease;
-  }
+.btn-luxury:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(197, 160, 89, 0.4);
+}
 
-  .review_icon:hover {
-    transform: scale(1.2);
-    border: 2px solid #080808;
-  }
+/* ── Map ─────────────────────────────────────────────── */
+.map-container-luxury {
+  height: 700px;
+  border-radius: 40px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.leaflet-container {
+  filter: invert(100%) hue-rotate(180deg) brightness(0.9) contrast(1.2);
+}

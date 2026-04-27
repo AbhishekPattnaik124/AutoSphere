@@ -1,0 +1,193 @@
+.contact-page-wrapper {
+  background: var(--color-bg);
+  color: white;
+  overflow-x: hidden;
+}
+
+/* ── Cinematic Hero ───────────────────────────────── */
+.contact-hero-v3 {
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-align: center;
+}
+
+.background-glow {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.15) 0%, transparent 70%);
+  z-index: 1;
+}
+
+.cinematic-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+/* ── Support Channels ────────────────────────────── */
+.support-channels {
+  padding: var(--space-20) 0;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+.channel-card {
+  padding: var(--space-10);
+  text-align: center;
+}
+
+.channel-card h3 {
+  font-size: 1.5rem;
+  margin: var(--space-4) 0;
+}
+
+.channel-card p {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: var(--space-6);
+}
+
+.channel-link {
+  color: var(--color-primary);
+  font-weight: 800;
+  font-size: 0.8rem;
+  text-transform: lowercase;
+}
+
+/* ── Form & Offices ──────────────────────────────── */
+.contact-main {
+  padding: var(--space-32) 0;
+}
+
+.flex-split {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-20);
+  align-items: flex-start;
+}
+
+.contact-form-luxury {
+  padding: var(--space-12);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+
+.input-group {
+  margin-bottom: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  letter-spacing: 0.1em;
+}
+
+.input-group input, .input-group select, .input-group textarea {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border);
+  padding: 14px;
+  color: white;
+  border-radius: 12px;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.input-group input:focus, .input-group textarea:focus {
+  border-color: var(--color-primary);
+  background: rgba(197, 160, 89, 0.05);
+}
+
+.offices-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.office-item {
+  border-left: 2px solid var(--color-border);
+  padding-left: var(--space-6);
+}
+
+.city-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.city-row h4 {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.role-tag {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 900;
+}
+
+.office-item p {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── FAQ ─────────────────────────────────────────── */
+.faq-section {
+  padding: var(--space-32) 0 var(--space-48);
+}
+
+.faq-list {
+  max-width: 800px;
+  margin: var(--space-12) auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.faq-item {
+  padding: var(--space-6);
+  cursor: pointer;
+}
+
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+}
+
+.faq-answer {
+  padding-top: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.success-v3 {
+  text-align: center;
+  padding: var(--space-12) 0;
+}
+
+@media (max-width: 992px) {
+  .grid-3, .flex-split, .form-row { grid-template-columns: 1fr; }
+}

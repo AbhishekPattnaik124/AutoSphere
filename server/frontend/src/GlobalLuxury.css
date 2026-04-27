@@ -1,0 +1,109 @@
+:root {
+  /* ── The Obsidian Gold Palette ──────────────────────── */
+  --color-bg: #050505;
+  --color-bg-card: rgba(255, 255, 255, 0.02);
+  --color-bg-hover: rgba(197, 160, 89, 0.05);
+  
+  --color-primary: #C5A059;
+  --color-primary-glow: rgba(197, 160, 89, 0.3);
+  --color-gold-bright: #FFD700;
+  --color-gold-deep: #8E6E37;
+  
+  --color-text: #FFFFFF;
+  --color-text-muted: rgba(255, 255, 255, 0.6);
+  --color-text-dim: rgba(255, 255, 255, 0.3);
+  
+  --color-border: rgba(197, 160, 89, 0.15);
+  --color-border-hover: rgba(197, 160, 89, 0.4);
+  
+  /* ── Typography ─────────────────────────────────────── */
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* ── Effects ────────────────────────────────────────── */
+  --glass-blur: blur(20px);
+  --transition-smooth: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  --shadow-gold: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(197, 160, 89, 0.05);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── Global Utility Classes ──────────────────────────── */
+.glass-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  backdrop-filter: var(--glass-blur);
+  border-radius: 24px;
+  transition: var(--transition-smooth);
+}
+
+.glass-card:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-bg-hover);
+  box-shadow: var(--shadow-gold);
+}
+
+.gold-text {
+  background: linear-gradient(135deg, var(--color-gold-bright) 0%, var(--color-primary) 50%, var(--color-gold-deep) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-label {
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: var(--color-primary);
+  font-size: 0.7rem;
+  font-weight: 900;
+  display: block;
+  margin-bottom: 16px;
+}
+
+/* ── Global Button System ────────────────────────────── */
+.btn-luxury {
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition-smooth);
+  text-decoration: none;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--color-gold-bright) 0%, var(--color-primary) 100%);
+  color: #000;
+  border: none;
+}
+
+.btn-gold:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px var(--color-primary-glow);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: #fff;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-hover);
+}

@@ -5,5 +5,5 @@ psutil==5.9.6
 
 # Transformer-based NLP (distilbert)
 # Comment these out and set USE_VADER_ONLY=true to skip model download
-transformers==4.37.2
-torch==2.1.2
+# transformers==4.37.2
+# torch==2.1.2

@@ -1,0 +1,185 @@
+.about-page-wrapper {
+  background: var(--color-bg);
+  color: white;
+  overflow-x: hidden;
+}
+
+/* ── Cinematic Hero ───────────────────────────────── */
+.about-hero-v3 {
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-align: center;
+}
+
+.background-glow {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.15) 0%, transparent 70%);
+  z-index: 1;
+}
+
+.cinematic-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: var(--space-6);
+}
+
+.hero-sub {
+  font-size: 1.2rem;
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── Mission & Vision ─────────────────────────────── */
+.mission-vision {
+  padding: var(--space-20) 0;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+}
+
+.vision-card, .mission-card {
+  padding: var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.vision-card.active {
+  border-color: var(--color-primary);
+  background: var(--color-bg-hover);
+}
+
+.icon-gold {
+  color: var(--color-primary);
+}
+
+/* ── Values Grid ──────────────────────────────────── */
+.values-grid-section {
+  padding: var(--space-32) 0;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-6);
+}
+
+.value-item {
+  padding: var(--space-10);
+  transition: var(--transition-smooth);
+}
+
+.icon-box {
+  color: var(--color-primary);
+  margin-bottom: var(--space-6);
+}
+
+/* ── Timeline ─────────────────────────────────────── */
+.timeline-section {
+  padding: var(--space-32) 0;
+}
+
+.timeline-container {
+  max-width: 800px;
+  margin: var(--space-16) auto;
+  position: relative;
+  padding-left: 40px;
+  border-left: 1px solid var(--color-border);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: var(--space-12);
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -46px;
+  top: 10px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--color-primary);
+}
+
+.year-box {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.event-box {
+  padding: var(--space-6);
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Global Reach ─────────────────────────────────── */
+.global-reach {
+  padding: var(--space-32) 0 var(--space-48);
+}
+
+.reach-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-20);
+}
+
+.reach-text {
+  max-width: 500px;
+}
+
+.reach-text h2 {
+  font-size: 3rem;
+  margin-bottom: var(--space-6);
+}
+
+.reach-stats {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: var(--space-12);
+}
+
+.stat-node {
+  text-align: center;
+}
+
+.stat-node span {
+  font-size: 3rem;
+  font-weight: 900;
+  display: block;
+}
+
+.stat-node p {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0.4;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 60px;
+  background: var(--color-border);
+}
+
+@media (max-width: 992px) {
+  .grid-2, .reach-flex { grid-template-columns: 1fr; flex-direction: column; }
+}

@@ -1,86 +1,302 @@
-.navcontainer{
-  display: flex;
-  flex: 1;
-
-  flex-direction: row;
-  margin: auto;
-  margin-top: 2%;
-  background-color: rgb(97, 64, 128);
-  align-items: flex-start;
-}
-
-.navitems{
-  display: flex;
-  flex-direction: row;
-  padding: 20px;
-  flex: 1;
-  justify-content: flex-start;
-  justify-self: center;
-}
-
-.nav_item{
-  margin-left:15px;
-  font-size: 20px;
-  color: azure;
-  align-self: center;
-}
-
-.input_panel {
-  display: flex;
-  flex-direction: row;
-  padding: 20px;
-  flex: 1;
-  justify-content: flex-end;
-  justify-self: center;
-}
-
-.input_field{
-  height:40px;
-  width:200px; 
-  font-size: medium;
-  margin:.5cm;
-}
-
-
-.action_button{
-  cursor: pointer;
-  font-size: large;
-  color: rgb(97, 64, 128);
-  border-radius: 10px;
-  height:40px;
-  padding-left:.5cm;
-  padding-right: .5cm;
-  margin: .5cm;
-}
-
-.submit:hover {
-  background-color: wheat;
-}
-
-.small_header{
-  font: 30px sans-serif;
-  color:azure;
-  margin: .5cm;
-}
-
-.username{
-  font: 30px sans-serif;
-  color:azure;
-  margin: .5cm;
-  justify-content: 'flex-end';
-  align-self:flex-end;
-}
-
-.login_panel {
+.login-page-wrapper {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  margin:auto;
-  margin: 0 auto;
-  width: 50%; 
-  padding: 20px;
+  background-color: #050505; /* Deeper Black */
+  overflow: hidden;
+}
+
+/* ── Luxury Background Aurora ──────────────────────────── */
+.login-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.aurora-glow {
+  position: absolute;
+  filter: blur(150px);
+  opacity: 0.15;
+  border-radius: 50%;
+}
+
+.aurora-1 {
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, #C5A059 0%, transparent 70%); /* Metallic Gold */
+  top: -300px;
+  right: -200px;
+}
+
+.aurora-2 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #8E6E37 0%, transparent 70%); /* Deep Gold */
+  bottom: -200px;
+  left: -100px;
+}
+
+/* ── Luxury Floating Particles ─────────────────────────── */
+.login-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#C5A059 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.05;
+  mask-image: radial-gradient(circle at center, black, transparent);
+  animation: bgMove 100s linear infinite;
+}
+
+@keyframes bgMove {
+  from { background-position: 0 0; }
+  to { background-position: 1000px 1000px; }
+}
+
+/* ── Modal Overlay ─────────────────────────────────────── */
+.login-modal-overlay {
+  position: relative;
+  z-index: 10;
   flex: 1;
-  justify-content:center;
+  display: flex;
   align-items: center;
-  vertical-align: middle;
-  
+  justify-content: center;
+  padding: var(--space-6);
+}
+
+/* ── Luxury Glass Card ─────────────────────────────────── */
+.login-glass-card {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(10, 10, 10, 0.85); /* Obsidian */
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(197, 160, 89, 0.1); /* Gold Border */
+  border-top-color: rgba(197, 160, 89, 0.3);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8), 0 0 20px rgba(197, 160, 89, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Luxury Gold Shine ────────────────────────────────── */
+.login-glass-card::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(197, 160, 89, 0.05) 50%,
+    transparent 55%
+  );
+  animation: shine 8s infinite;
+  pointer-events: none;
+}
+
+@keyframes shine {
+  0% { transform: translate(-20%, -20%); }
+  100% { transform: translate(20%, 20%); }
+}
+
+/* ── Close Button ──────────────────────────────────────── */
+.close-btn {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-6);
+  background: rgba(197, 160, 89, 0.05);
+  border: 1px solid rgba(197, 160, 89, 0.1);
+  border-radius: var(--radius-full);
+  color: #C5A059;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  z-index: 20;
+}
+
+.close-btn:hover {
+  background: rgba(197, 160, 89, 0.2);
+  color: #FFD700;
+  box-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
+}
+
+/* ── Content ───────────────────────────────────────────── */
+.login-content {
+  padding: var(--space-12) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.brand-section {
+  text-align: center;
+}
+
+.brand-logo {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-6);
+  display: inline-flex;
+  padding: var(--space-5);
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.1) 0%, transparent 70%);
+  border-radius: var(--radius-2xl);
+  border: 1px solid rgba(197, 160, 89, 0.1);
+  color: #C5A059;
+  text-shadow: 0 0 20px rgba(197, 160, 89, 0.5);
+}
+
+.brand-section h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: 900;
+  margin-bottom: var(--space-2);
+  background: linear-gradient(135deg, #FFD700 0%, #C5A059 50%, #8E6E37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+.brand-section p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.02em;
+}
+
+/* ── Form ──────────────────────────────────────────────── */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.input-group label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #C5A059;
+  opacity: 0.8;
+  padding-left: var(--space-1);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: var(--space-5);
+  color: #8E6E37;
+  transition: all var(--transition-base);
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: var(--space-4) var(--space-5) var(--space-4) var(--space-14);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(197, 160, 89, 0.15);
+  border-radius: var(--radius-xl);
+  color: white;
+  font-size: var(--font-size-base);
+  transition: all var(--transition-slow);
+}
+
+.input-wrapper input:focus {
+  outline: none;
+  background: rgba(197, 160, 89, 0.05);
+  border-color: #FFD700;
+  box-shadow: 0 0 20px rgba(197, 160, 89, 0.2);
+}
+
+.input-wrapper input:focus + .input-icon {
+  color: #FFD700;
+  transform: scale(1.1);
+}
+
+/* ── Luxury Submit Button ───────────────────────────────── */
+.login-submit-btn {
+  margin-top: var(--space-6);
+  padding: var(--space-5);
+  background: linear-gradient(135deg, #FFD700 0%, #C5A059 100%);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-xl);
+  font-weight: 900;
+  font-size: var(--font-size-base);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  box-shadow: 0 15px 35px rgba(197, 160, 89, 0.3);
+  transition: all var(--transition-slow);
+}
+
+.login-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 45px rgba(197, 160, 89, 0.4);
+  filter: brightness(1.1);
+}
+
+.login-submit-btn:disabled {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+/* ── Error Message ──────────────────────────────────────── */
+.error-message {
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid rgba(255, 82, 82, 0.2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  color: #ff8a80;
+  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+/* ── Footer ────────────────────────────────────────────── */
+.login-footer {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.login-footer a {
+  color: #FFD700;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.login-footer a:hover {
+  color: white;
+  text-shadow: 0 0 10px rgba(197, 160, 89, 0.8);
 }
