@@ -25,3 +25,6 @@ stripe==7.13.0
 
 # AI APIs
 google-generativeai==0.3.2
+
+# PostgreSQL adapter
+psycopg2-binary>=2.9.9
