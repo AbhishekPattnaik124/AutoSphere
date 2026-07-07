@@ -21,25 +21,44 @@ from djangoapp.exceptions import (
 
 load_dotenv()
 
-load_dotenv()
+DEALER_CACHE_TIMEOUT = int(os.getenv('DEALER_CACHE_TIMEOUT', 300))
+
+
+# ── Service URL Helpers ────────────────────────────────────────
 
 def get_backend_url():
-    load_dotenv(override=True)
+    load_dotenv(override=False)
     return os.getenv('backend_url', 'http://localhost:3030').rstrip('/')
 
+
 def get_sentiment_url():
-    load_dotenv(override=True)
+    load_dotenv(override=False)
     return os.getenv('sentiment_analyzer_url', 'http://localhost:5050').rstrip('/')
 
+
 def get_inventory_url():
-    load_dotenv(override=True)
+    load_dotenv(override=False)
     return os.getenv('searchcars_url', 'http://localhost:3050').rstrip('/')
 
+
 def get_booking_url():
-    load_dotenv(override=True)
+    load_dotenv(override=False)
     return os.getenv('booking_url', 'http://localhost:3060').rstrip('/')
 
-DEALER_CACHE_TIMEOUT = int(os.getenv('DEALER_CACHE_TIMEOUT', 300))
+
+def get_notification_url():
+    load_dotenv(override=False)
+    return os.getenv('notification_url', 'http://localhost:3080').rstrip('/')
+
+
+def get_audit_url():
+    load_dotenv(override=False)
+    return os.getenv('audit_url', 'http://localhost:3090').rstrip('/')
+
+
+def get_recommend_url():
+    load_dotenv(override=False)
+    return os.getenv('recommend_url', 'http://localhost:3070').rstrip('/')
 
 
 # ══════════════════════════════════════════════════════════
@@ -59,7 +78,10 @@ def get_request(endpoint: str, trace_id: str = None, **kwargs) -> dict | None:
         Parsed JSON dict/list, or None on circuit open / network failure.
     """
     params = ''.join(f"{k}={v}&" for k, v in kwargs.items()) if kwargs else ''
-    url = f"{get_backend_url()}{endpoint}?{params}"
+    url = f"{get_backend_url()}{endpoint}"
+    if params:
+        separator = '&' if '?' in endpoint else '?'
+        url += f"{separator}{params}"
     tid = trace_id or str(uuid.uuid4())
 
     try:
@@ -74,9 +96,10 @@ def get_dealerships_cached(endpoint: str, trace_id: str = None) -> dict | None:
     """
     Cached wrapper for the dealer list endpoint.
     Cache TTL: DEALER_CACHE_TIMEOUT (default 5 min).
-    Cache is invalidated externally (on write) in a future enhancement.
     """
     cache_key = f"dealers:{endpoint}"
+    backup_key = f"dealers_backup:{endpoint}"
+    
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
@@ -84,7 +107,11 @@ def get_dealerships_cached(endpoint: str, trace_id: str = None) -> dict | None:
     result = get_request(endpoint, trace_id=trace_id)
     if result is not None:
         cache.set(cache_key, result, timeout=DEALER_CACHE_TIMEOUT)
-    return result
+        cache.set(backup_key, result, timeout=None) # Keep backup indefinitely
+        return result
+        
+    # Circuit breaker is open or network failed; return stale data if available
+    return cache.get(backup_key)
 
 
 def post_review(data_dict: dict, trace_id: str = None) -> dict | None:
@@ -144,14 +171,13 @@ def analyze_review_sentiments(text: str, trace_id: str = None) -> dict:
     except Exception:
         pass
 
-    # Graceful degradation: return neutral if analyzer is down
     return {"sentiment": "neutral", "confidence": 0.0, "model": "unavailable"}
 
 
 def analyze_batch(texts: list, trace_id: str = None) -> list:
     """
     Batch analyze up to 50 review texts.
-    Uses POST /analyze/batch endpoint on the sentiment service.
+    Uses POST /analyze/batch on the sentiment service.
 
     Args:
         texts:    List of text strings (max 50).
@@ -166,25 +192,44 @@ def analyze_batch(texts: list, trace_id: str = None) -> list:
     url = f"{get_sentiment_url()}/analyze/batch"
     tid = trace_id or str(uuid.uuid4())
     try:
-        result = resilient_post(url, service_name='sentiment-analyzer', data={"texts": texts[:50]}, trace_id=tid)
+        result = resilient_post(
+            url,
+            service_name='sentiment-analyzer',
+            data={"texts": texts[:50]},
+            trace_id=tid,
+        )
         return result.get('results', []) if result else []
     except Exception:
-        return []
+        # Graceful degradation — return neutral for all
+        return [{"sentiment": "neutral", "confidence": 0.5, "model": "unavailable"}] * len(texts)
 
-def summarize_reviews(reviews_list, trace_id=None):
+
+def summarize_reviews(reviews_list: list, trace_id: str = None) -> dict:
+    """Summarize a list of review texts using the Sentiment Analyzer's summarize endpoint."""
     url = f"{get_sentiment_url()}/summarize"
     tid = trace_id or str(uuid.uuid4())
     try:
-        return resilient_post(url, service_name='sentiment-analyzer', data={"reviews": reviews_list}, trace_id=tid)
+        return resilient_post(
+            url,
+            service_name='sentiment-analyzer',
+            data={"reviews": reviews_list},
+            trace_id=tid,
+        )
     except Exception:
         return {"summary": "Summarization temporarily unavailable."}
 
-def get_dealer_score(dealer_id, reviews=None, trace_id=None):
+
+def get_dealer_score(dealer_id, reviews: list = None, trace_id: str = None) -> dict:
+    """Get composite trust score for a dealer based on their reviews."""
     url = f"{get_sentiment_url()}/analytics/dealer/{dealer_id}/score"
     tid = trace_id or str(uuid.uuid4())
     try:
-        # Use POST to avoid URL length limits with many reviews
-        return resilient_post(url, service_name='sentiment-analyzer', data={"reviews": reviews or []}, trace_id=tid)
+        return resilient_post(
+            url,
+            service_name='sentiment-analyzer',
+            data={"reviews": reviews or []},
+            trace_id=tid,
+        )
     except Exception:
         return {"score": 75, "grade": "B"}
 
@@ -215,17 +260,21 @@ def searchcars_request(endpoint: str, trace_id: str = None, **kwargs) -> dict | 
     except Exception:
         return None
 
+
 # ══════════════════════════════════════════════════════════
 # Booking Service
 # ══════════════════════════════════════════════════════════
 
 def post_booking(data_dict: dict, trace_id: str = None) -> dict | None:
-    """
-    POST a new booking to the Appointment service.
-    """
+    """POST a new appointment booking to the Booking Microservice."""
     url = f"{get_booking_url()}/book"
     tid = trace_id or str(uuid.uuid4())
     try:
-        return resilient_post(url, service_name='booking-service', data=data_dict, trace_id=tid)
+        return resilient_post(
+            url,
+            service_name='booking-service',
+            data=data_dict,
+            trace_id=tid,
+        )
     except Exception:
         return None

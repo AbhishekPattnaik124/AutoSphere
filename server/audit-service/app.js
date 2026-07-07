@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3090;
+const SERVICE_START = Date.now();
 
 app.use(cors());
 app.use(express.json());
@@ -117,7 +118,16 @@ app.get('/logs', async (req, res) => {
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', service: 'Audit Service' });
+  const dbState = mongoose.connection.readyState;
+  const isHealthy = dbState === 1;
+  res.json({
+    service: 'audit-service',
+    version: '2.0.0',
+    status: isHealthy ? 'healthy' : 'degraded',
+    uptime_seconds: Math.floor((Date.now() - SERVICE_START) / 1000),
+    database: { connected: isHealthy },
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.listen(port, () => {

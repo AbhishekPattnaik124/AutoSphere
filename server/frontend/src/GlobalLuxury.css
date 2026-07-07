@@ -10,8 +10,8 @@
   --color-gold-deep: #8E6E37;
   
   --color-text: #FFFFFF;
-  --color-text-muted: rgba(255, 255, 255, 0.6);
-  --color-text-dim: rgba(255, 255, 255, 0.3);
+  --color-text-muted: rgba(255, 255, 255, 0.85);
+  --color-text-dim: rgba(255, 255, 255, 0.6);
   
   --color-border: rgba(197, 160, 89, 0.15);
   --color-border-hover: rgba(197, 160, 89, 0.4);
@@ -31,12 +31,34 @@
   box-sizing: border-box;
 }
 
+@keyframes aurora {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 body {
   background-color: var(--color-bg);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(197, 160, 89, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(197, 160, 89, 0.05), transparent 25%);
+  background-size: 200% 200%;
+  animation: aurora 15s ease infinite;
   color: var(--color-text);
   font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 9999;
 }
 
 /* ── Global Utility Classes ──────────────────────────── */
@@ -57,6 +79,7 @@ body {
 .gold-text {
   background: linear-gradient(135deg, var(--color-gold-bright) 0%, var(--color-primary) 50%, var(--color-gold-deep) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

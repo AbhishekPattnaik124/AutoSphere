@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, Shield, Zap, BarChart3, Globe, ArrowUpRight, Activity, Target, Car as CarIcon } from 'lucide-react';
 import PageTransition from '../../components/PageTransition';
+import SEO from '../../components/SEO';
 import heroImg from '../../assets/hero.png';
 import './HomePage.css';
 import { useState, useEffect } from 'react';
@@ -22,8 +23,25 @@ const HomePage = () => {
     fetchFeatured();
   }, []);
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Autosphere OS",
+    "url": window.location.origin,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": `${window.location.origin}/dealers?search={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <PageTransition>
+      <SEO 
+        title="Automotive Intelligence Redefined"
+        description="Experience the world's most sophisticated dealership operating system. Built for precision, powered by AI, designed for the elite."
+        schema={homeSchema}
+      />
       <div className="classy-home">
         
         {/* ── Cinematic Hero ───────────────────────────────── */}

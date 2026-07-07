@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Phone } from 'lucide-react';
 import PageTransition from '../PageTransition';
+import SEO from '../SEO';
 import positive_icon from "../assets/positive.png";
 import neutral_icon from "../assets/neutral.png";
 import negative_icon from "../assets/negative.png";
+import { useCurrency } from '../../context/CurrencyContext';
 import './DealerProfile.css';
 
 const Dealer = () => {
   const { id } = useParams();
+  const { formatPrice } = useCurrency();
   const [dealer, setDealer] = useState(null);
   const [trustData, setTrustData] = useState({ grade: 'A', score: 95 });
   const [reviews, setReviews] = useState([]);
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [aiSummary, setAiSummary] = useState('');
+  
+  // AI Voice Call State
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState([]);
+  const [isCalling, setIsCalling] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,6 +82,34 @@ const Dealer = () => {
     }
   };
 
+  const handleVoiceCall = async () => {
+    setShowVoiceModal(true);
+    setIsCalling(true);
+    setVoiceTranscript([]);
+
+    try {
+      const res = await fetch(`/djangoapp/voice/trigger-call/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_name: sessionStorage.getItem('username') || 'A customer', lead_car: 'a vehicle' })
+      });
+      const data = await res.json();
+      
+      if (data.status === 'success') {
+        // Simulate real-time transcript streaming
+        data.mock_transcript.forEach((line, index) => {
+          setTimeout(() => {
+            setVoiceTranscript(prev => [...prev, line]);
+            if (index === data.mock_transcript.length - 1) setIsCalling(false);
+          }, index * 2000);
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setIsCalling(false);
+    }
+  };
+
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } }
@@ -99,8 +136,28 @@ const Dealer = () => {
     </PageTransition>
   );
 
+  const dealerSchema = dealer ? {
+    "@context": "https://schema.org",
+    "@type": "AutoDealer",
+    "name": dealer.full_name,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": dealer.address,
+      "addressLocality": dealer.city,
+      "addressRegion": dealer.state,
+      "postalCode": dealer.zip
+    }
+  } : null;
+
   return (
     <PageTransition>
+      {dealer && (
+        <SEO 
+          title={`${dealer.full_name} - ${dealer.city}, ${dealer.state}`}
+          description={`View luxury inventory and customer testimonials for ${dealer.full_name} in ${dealer.city}.`}
+          schema={dealerSchema}
+        />
+      )}
       <div className="dealer-profile-page">
         
         <motion.div 
@@ -118,6 +175,10 @@ const Dealer = () => {
               <motion.div variants={itemVariants} className="hero-actions">
                 <button className="btn-primary" onClick={() => window.location.href = `/book/${id}`}>
                   Book Test Drive
+                </button>
+                <button className="btn-luxury-sm" style={{ background: '#00ff9d', color: '#000', border: 'none', marginLeft: '10px' }} onClick={handleVoiceCall}>
+                  <Phone size={16} style={{marginRight: '8px'}} />
+                  Live AI Connect
                 </button>
                 {sessionStorage.getItem('username') && (
                   <button className="btn-secondary" onClick={() => window.location.href = `/postreview/${id}`}>
@@ -138,6 +199,35 @@ const Dealer = () => {
             </motion.div>
           </div>
         </motion.div>
+
+        <AnimatePresence>
+          {showVoiceModal && (
+            <motion.div className="ai-voice-modal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} style={{ background: 'var(--color-glass-bg)', border: '1px solid #00ff9d', padding: '40px', borderRadius: '20px', width: '90%', maxWidth: '500px' }}>
+                <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff', marginBottom: '20px' }}>
+                  <Phone color="#00ff9d" /> AI Voice Assistant
+                </h2>
+                
+                <div style={{ background: 'rgba(0,0,0,0.5)', padding: '20px', borderRadius: '12px', minHeight: '200px', maxHeight: '300px', overflowY: 'auto', marginBottom: '20px', fontFamily: 'monospace' }}>
+                  {voiceTranscript.map((line, i) => (
+                    <div key={i} style={{ marginBottom: '10px', color: line.speaker === 'AI' ? '#00ff9d' : '#fff' }}>
+                      <strong>{line.speaker}:</strong> {line.text}
+                    </div>
+                  ))}
+                  {isCalling && (
+                    <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1 }}>
+                      ...
+                    </motion.div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="btn-secondary" onClick={() => setShowVoiceModal(false)}>Close</button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="profile-container main-content">
           <AnimatePresence>
@@ -189,7 +279,7 @@ const Dealer = () => {
                     </div>
                     <div className="car-meta">
                       <span className="mileage">{car.mileage.toLocaleString()} MILES</span>
-                      <span className="price">${car.price.toLocaleString()}</span>
+                      <span className="price">{formatPrice(car.price)}</span>
                     </div>
                   </div>
                 </motion.div>

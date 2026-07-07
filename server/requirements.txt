@@ -19,3 +19,9 @@ dj-database-url==2.1.0
 
 # HTTP resilience
 urllib3==2.1.0
+
+# Payments
+stripe==7.13.0
+
+# AI APIs
+google-generativeai==0.3.2

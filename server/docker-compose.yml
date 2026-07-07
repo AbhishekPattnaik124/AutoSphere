@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
     container_name: bestcars-gateway
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       django:
         condition: service_started
@@ -45,14 +45,24 @@ services:
     environment:
       - DJANGO_ENV=${DJANGO_ENV:-development}
       - REDIS_URL=redis://redis:6379/0
-      - DEALER_SERVICE_URL=http://database-api:3030
-      - INVENTORY_SERVICE_URL=http://carsinventory-api:3050
-      - SENTIMENT_SERVICE_URL=http://sentiment-analyzer:5050
+      - backend_url=http://database-api:3030
+      - searchcars_url=http://carsinventory-api:3050/
+      - sentiment_analyzer_url=http://sentiment-analyzer:5050/
+      - booking_url=http://booking-service:3060
+      - notification_url=http://notification-service:3080
+      - audit_url=http://audit-service:3090
+      - recommend_url=http://recommend-service:3070
     depends_on:
       redis:
-        condition: service_started
+        condition: service_healthy
       database-api:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     volumes:
       - .:/app                    # Hot-reload in dev
     restart: unless-stopped
@@ -83,7 +93,7 @@ services:
     image: mongo:7
     container_name: bestcars-mongo-dealers
     ports:
-      - "27017:27017"
+      - "27020:27017"
     volumes:
       - mongo_dealers_data:/data/db
     restart: unless-stopped
@@ -125,7 +135,7 @@ services:
     image: mongo:7
     container_name: bestcars-mongo-inventory
     ports:
-      - "27018:27017"
+      - "27019:27017"
     volumes:
       - mongo_inventory_data:/data/db
     restart: unless-stopped
@@ -213,6 +223,7 @@ services:
     environment:
       - MONGO_URL=mongodb://mongo-dealers:27017/bookings
       - REDIS_URL=redis://redis:6379/4
+      - NOTIFICATION_URL=http://notification-service:3080/notify
     depends_on:
       mongo-dealers:
         condition: service_started
@@ -233,7 +244,7 @@ services:
     ports:
       - "3080:3080"
     environment:
-      - REDIS_URL=redis://redis:6379/4
+      - REDIS_URL=redis://redis:6379/5
     depends_on:
       redis:
         condition: service_started
@@ -253,7 +264,7 @@ services:
       - "3090:3090"
     environment:
       - MONGO_URL=mongodb://mongo-dealers:27017/audit
-      - REDIS_URL=redis://redis:6379/4
+      - REDIS_URL=redis://redis:6379/6
     depends_on:
       mongo-dealers:
         condition: service_started

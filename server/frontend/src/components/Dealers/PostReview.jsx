@@ -68,9 +68,12 @@ const PostReview = () => {
       const data = await res.json();
       if (data.status === 200) {
         navigate(`/dealer/${id}`);
+      } else {
+        alert(data.message || "Failed to submit review.");
       }
     } catch (err) {
       console.error(err);
+      alert("Network error: failed to submit review.");
     } finally {
       setSubmitting(false);
     }

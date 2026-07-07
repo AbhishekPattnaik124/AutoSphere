@@ -101,7 +101,7 @@ const Dealerships = require('./dealership');
 const Cars = require('./inventory');
 
 // ── MongoDB connection with retry ─────────────────────────
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://mongo_db:27017/';
+const MONGO_URL = process.env.MONGO_DEALERS_URL || process.env.MONGO_URL || 'mongodb://localhost:27017/';
 const MAX_RETRIES = 5;
 
 async function connectWithRetry(attempt = 1) {
@@ -122,9 +122,19 @@ async function connectWithRetry(attempt = 1) {
   }
 }
 
-// ── Seed data ─────────────────────────────────────────────
+// ── Seed data ─────────────────────────────────────────
 async function seedDatabase() {
   try {
+    // Only seed if the database is empty — prevents data loss on restart
+    const dealerCount = await Dealerships.countDocuments();
+    if (dealerCount > 0) {
+      console.log(JSON.stringify({
+        time: new Date().toISOString(), service: 'dealer-api', level: 'INFO',
+        message: `Database already has ${dealerCount} dealerships — skipping seed.`,
+      }));
+      return;
+    }
+
     const reviews_data = JSON.parse(fs.readFileSync('data/reviews.json', 'utf8'));
     const dealerships_data = JSON.parse(fs.readFileSync('data/dealerships.json', 'utf8'));
     const cars_data = JSON.parse(fs.readFileSync('data/car_records.json', 'utf8'));
@@ -141,9 +151,16 @@ async function seedDatabase() {
       return car;
     });
     await Cars.insertMany(cars);
-    console.log(JSON.stringify({ time: new Date().toISOString(), service: 'dealer-api', level: 'INFO', message: 'Database seeded successfully' }));
+
+    console.log(JSON.stringify({
+      time: new Date().toISOString(), service: 'dealer-api', level: 'INFO',
+      message: `Database seeded: ${dealerships_data['dealerships'].length} dealers, ${reviews_data['reviews'].length} reviews, ${cars.length} cars.`,
+    }));
   } catch (err) {
-    console.error(JSON.stringify({ time: new Date().toISOString(), service: 'dealer-api', level: 'ERROR', message: 'Seeding failed', error: err.message }));
+    console.error(JSON.stringify({
+      time: new Date().toISOString(), service: 'dealer-api', level: 'ERROR',
+      message: 'Seeding failed', error: err.message,
+    }));
   }
 }
 
@@ -194,7 +211,45 @@ app.get('/', (req, res) => {
 // ── Dealerships ───────────────────────────────────────────
 app.get('/fetchDealers', async (req, res) => {
   try {
-    const documents = await Dealerships.find().lean();
+    const { country, state, city } = req.query;
+    let query = {};
+    if (country) query.country = country;
+    if (state) query.state = state;
+    if (city) query.city = city;
+
+    let documents = await Dealerships.find(query).lean();
+    
+    // Auto-Generation Protocol: If city is queried and none exist, generate them!
+    if (city && documents.length === 0) {
+      console.log(`No dealers found for ${city}, ${state}, ${country}. Auto-generating...`);
+      const generateCount = Math.floor(Math.random() * 3) + 3; // 3 to 5 dealers
+      
+      const latestDealer = await Dealerships.findOne().sort({ id: -1 });
+      let nextId = (latestDealer ? latestDealer.id : 1000) + 1;
+      
+      const newDealers = [];
+      const prefixes = ["Premium", "Luxury", "Elite", "Prime", "Royal", "Global"];
+      
+      for (let i = 0; i < generateCount; i++) {
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        newDealers.push({
+          id: nextId++,
+          city: city,
+          state: state || 'Unknown',
+          country: country || 'Unknown',
+          address: `${Math.floor(Math.random() * 999) + 1} Main St`,
+          zip: "00000",
+          lat: (Math.random() * 180 - 90).toFixed(4),
+          long: (Math.random() * 360 - 180).toFixed(4),
+          short_name: `${city} ${prefix}`,
+          full_name: `${city} ${prefix} Auto Group`
+        });
+      }
+      
+      await Dealerships.insertMany(newDealers);
+      documents = newDealers;
+    }
+    
     res.json(documents);
   } catch (error) {
     res.status(500).json({ error: 'FETCH_ERROR', message: 'Error fetching dealerships' });
@@ -239,9 +294,9 @@ app.get('/fetchReviews/dealer/:id', async (req, res) => {
 });
 
 // ── Insert Review — with Socket.IO broadcast ──────────────
-app.post('/insert_review', reviewLimiter, express.raw({ type: '*/*' }), async (req, res) => {
+app.post('/insert_review', reviewLimiter, async (req, res) => {
   try {
-    const data = JSON.parse(req.body);
+    const data = req.body;
 
     // Input validation
     if (!data.review || !data.name || !data.dealership) {

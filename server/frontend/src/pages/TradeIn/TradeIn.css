@@ -1,0 +1,141 @@
+.trade-in-page {
+  padding: 4rem 2rem;
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.trade-in-container {
+  width: 100%;
+  max-width: 600px;
+  padding: 3rem;
+  border-radius: 20px;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.trade-in-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.trade-in-header h1 {
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.trade-in-header p {
+  color: var(--color-text-muted);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  margin-bottom: 3rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-gold);
+  transition: width 0.3s ease;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.step-content h3 {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-group input {
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-gold);
+}
+
+.input-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon svg {
+  position: absolute;
+  left: 1rem;
+  color: var(--color-text-muted);
+}
+
+.input-icon input {
+  width: 100%;
+  padding-left: 3rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.button-group button {
+  flex: 1;
+}
+
+.success-step {
+  text-align: center;
+}
+
+.valuation-card {
+  background: rgba(197, 160, 89, 0.1);
+  border: 1px solid var(--color-gold);
+  padding: 2rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.valuation-price {
+  font-size: 3rem;
+  color: var(--color-gold);
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.valuation-range {
+  color: var(--color-text-muted);
+}
+
+.next-steps {
+  color: #fff;
+  margin-bottom: 2rem;
+}

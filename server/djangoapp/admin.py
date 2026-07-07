@@ -2,25 +2,31 @@ from django.contrib import admin
 from .models import CarMake, CarModel
 
 
-# Register your models here.
+# ── CarModel Inline ────────────────────────────────────────────
 
-# CarModelInline class
-class CarModelInline(admin.StackedInline):
+class CarModelInline(admin.TabularInline):
     model = CarModel
-    extra = 5
+    extra = 1
+    fields = ('name', 'type', 'year')
+    show_change_link = True
 
 
-# CarModelAdmin class
+# ── CarModel Admin ─────────────────────────────────────────────
+
+@admin.register(CarModel)
 class CarModelAdmin(admin.ModelAdmin):
-    list_display = ['name', 'type', 'year']
+    list_display = ('name', 'car_make', 'type', 'year')
+    list_filter = ('type', 'year', 'car_make')
+    search_fields = ('name', 'car_make__name')
+    ordering = ('car_make__name', 'name')
+    list_select_related = ('car_make',)
 
 
-# CarMakeAdmin class with CarModelInline
+# ── CarMake Admin ──────────────────────────────────────────────
+
+@admin.register(CarMake)
 class CarMakeAdmin(admin.ModelAdmin):
     inlines = [CarModelInline]
-    list_display = ['name', 'description']
-
-
-# Register models here
-admin.site.register(CarMake, CarMakeAdmin)
-admin.site.register(CarModel, CarModelAdmin)
+    list_display = ('name', 'description', 'country_of_origin', 'founded_year')
+    search_fields = ('name', 'country_of_origin')
+    ordering = ('name',)

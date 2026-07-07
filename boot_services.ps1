@@ -29,14 +29,14 @@ Write-Host "[INIT] Launching Cluster with Live Logging..." -ForegroundColor Cyan
 
 # 1. Dealer API
 Write-Host "[1/3] Starting Dealer API..." -ForegroundColor Yellow
-Start-Process node -ArgumentList "server/database/app.js" -RedirectStandardOutput "server/logs/dealer.log" -RedirectStandardError "server/logs/dealer_err.log" -NoNewWindow -PassThru
+Start-Process node -ArgumentList "app.js" -WorkingDirectory "server/database" -RedirectStandardOutput "server/logs/dealer.log" -RedirectStandardError "server/logs/dealer_err.log" -NoNewWindow -PassThru
 
 # 2. Inventory API
 Write-Host "[2/3] Starting Inventory API..." -ForegroundColor Yellow
-Start-Process node -ArgumentList "server/carsInventory/app.js" -RedirectStandardOutput "server/logs/inventory.log" -RedirectStandardError "server/logs/inventory_err.log" -NoNewWindow -PassThru
+Start-Process node -ArgumentList "app.js" -WorkingDirectory "server/carsInventory" -RedirectStandardOutput "server/logs/inventory.log" -RedirectStandardError "server/logs/inventory_err.log" -NoNewWindow -PassThru
 
 # 3. Sentiment NLP
 Write-Host "[3/3] Starting Sentiment NLP..." -ForegroundColor Yellow
-Start-Process python -ArgumentList "server/djangoapp/microservices/app.py" -RedirectStandardOutput "server/logs/sentiment.log" -RedirectStandardError "server/logs/sentiment_err.log" -NoNewWindow -PassThru
+Start-Process python -ArgumentList "app.py" -WorkingDirectory "server/djangoapp/microservices" -RedirectStandardOutput "server/logs/sentiment.log" -RedirectStandardError "server/logs/sentiment_err.log" -NoNewWindow -PassThru
 
 Write-Host "[SUCCESS] AutoSphere cluster is synchronized. Logs are available in server/logs/." -ForegroundColor Green

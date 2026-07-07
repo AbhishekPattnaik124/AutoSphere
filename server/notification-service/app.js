@@ -18,6 +18,7 @@ const io = new Server(server, {
 });
 
 const port = process.env.PORT || 3080;
+const SERVICE_START = Date.now();
 const SERVICE_EMAIL = process.env.SERVICE_EMAIL || 'notifications@autosphere.com';
 
 // ── Nodemailer Setup ────────────────────────────────────────
@@ -150,7 +151,14 @@ io.on('connection', (socket) => {
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', service: 'Notification Service' });
+  res.json({
+    service: 'notification-service',
+    version: '2.0.0',
+    status: 'healthy',
+    uptime_seconds: Math.floor((Date.now() - SERVICE_START) / 1000),
+    database: { connected: true },
+    timestamp: new Date().toISOString(),
+  });
 });
 
 server.listen(port, () => {

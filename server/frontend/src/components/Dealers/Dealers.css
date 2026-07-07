@@ -27,16 +27,17 @@
 }
 
 .search-box-luxury {
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   align-items: center;
-  padding: 0 1.5rem;
+  padding: 8px 12px;
   border-radius: 100px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+  gap: 12px;
 }
 
 .search-box-luxury:focus-within {
@@ -44,18 +45,73 @@
   box-shadow: 0 0 30px rgba(197, 160, 89, 0.2);
 }
 
-.search-icon {
-  color: #c5a059;
+.search-input-group {
+  flex: 1.5;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  min-width: 200px;
 }
 
-.search-box-luxury input {
+.search-icon {
+  color: #c5a059;
+  margin-right: 10px;
+}
+
+.search-input {
   flex: 1;
   background: transparent;
   border: none;
-  padding: 20px 16px;
+  padding: 12px 0;
   color: white;
-  font-size: 1.1rem;
+  font-size: 1rem;
   outline: none;
+}
+
+.search-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 2;
+}
+
+@media (max-width: 800px) {
+  .search-box-luxury {
+    flex-direction: column;
+    border-radius: 20px;
+    padding: 20px;
+    gap: 20px;
+  }
+  .search-filters {
+    flex-direction: column;
+    width: 100%;
+  }
+  .search-input-group {
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+  }
+}
+
+.filter-dropdown {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 16px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.95rem;
+  min-width: 150px;
+  transition: all 0.3s ease;
+}
+
+.filter-dropdown:focus {
+  border-color: var(--color-gold, #c5a059);
+}
+
+.filter-dropdown option {
+  background: #111;
+  color: #fff;
 }
 
 /* ── Controls ────────────────────────────────────────── */
@@ -155,6 +211,18 @@
 
 .dealer-link:hover {
   color: #c5a059;
+}
+
+.dealer-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dealer-id {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .state-badge {

@@ -1,0 +1,150 @@
+.autogpt-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-gold-bright, #FFD700), var(--color-primary, #C5A059));
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 10px 30px var(--color-primary-glow, rgba(197, 160, 89, 0.4));
+}
+
+.autogpt-window {
+  position: fixed;
+  bottom: 100px;
+  right: 24px;
+  width: 350px;
+  height: 500px;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.autogpt-header {
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-glass-border);
+}
+
+.autogpt-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.autogpt-close {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.autogpt-close:hover {
+  color: #fff;
+}
+
+.autogpt-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.autogpt-message {
+  display: flex;
+  width: 100%;
+}
+
+.autogpt-message.bot {
+  justify-content: flex-start;
+}
+
+.autogpt-message.user {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.autogpt-message.bot .message-bubble {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-bottom-left-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.autogpt-message.user .message-bubble {
+  background: var(--color-primary);
+  color: #000;
+  border-bottom-right-radius: 4px;
+}
+
+.autogpt-input-area {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid var(--color-glass-border);
+}
+
+.autogpt-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 10px 16px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.autogpt-input:focus {
+  border-color: var(--color-primary);
+}
+
+.autogpt-send {
+  background: var(--color-primary);
+  color: #000;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.autogpt-send:hover {
+  transform: scale(1.1);
+}

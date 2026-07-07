@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { Search, Map as MapIcon, Table as TableIcon, Star, ChevronRight } from 'lucide-react';
+import { Search, Map as MapIcon, Table as TableIcon, Star, ChevronRight, Globe } from 'lucide-react';
+import { Country, State, City } from 'country-state-city';
 import PageTransition from '../PageTransition';
 import './Dealers.css';
 
@@ -17,33 +18,71 @@ L.Icon.Default.mergeOptions({
 
 const Dealers = () => {
   const [origDealersList, setOrigDealersList] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   const [viewMode, setViewMode] = useState('table');
   const isLoggedIn = sessionStorage.getItem('username') != null;
 
-  const fetchDealers = useCallback(async () => {
+  const fetchDealers = useCallback(async (isInitial = false) => {
     try {
-      setLoading(true);
-      const res = await fetch('/djangoapp/get_dealers');
+      let queryParams = [];
+      if (!isInitial) {
+        if (selectedCountry) {
+          queryParams.push(`country=${encodeURIComponent(Country.getCountryByCode(selectedCountry)?.name || '')}`);
+        }
+        if (selectedState) {
+          queryParams.push(`state=${encodeURIComponent(State.getStateByCodeAndCountry(selectedState, selectedCountry)?.name || '')}`);
+        }
+        if (selectedCity) {
+          queryParams.push(`city=${encodeURIComponent(selectedCity)}`);
+        }
+      }
+      const qs = queryParams.length ? '?' + queryParams.join('&') : '';
+      const separator = qs ? '&' : '?';
+      const cacheBuster = `t=${Date.now()}`;
+      
+      const res = await fetch(`/djangoapp/get_dealers${qs}${separator}${cacheBuster}`);
       const data = await res.json();
       if (data.status === 200) {
         setOrigDealersList(data.dealers || []);
       }
     } catch (e) {
       console.error('Failed to fetch dealers:', e);
-    } finally {
-      setLoading(false);
     }
-  }, []);
+  }, [selectedCountry, selectedState, selectedCity]);
 
-  useEffect(() => { fetchDealers(); }, [fetchDealers]);
+  // Initial fetch on mount
+  useEffect(() => { fetchDealers(true); }, []);
 
-  const filteredDealers = (origDealersList || []).filter(d =>
-    d.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const uniqueCountries = Country.getAllCountries();
+  const uniqueStates = selectedCountry ? State.getStatesOfCountry(selectedCountry) : [];
+  const uniqueCities = (selectedCountry && selectedState) ? City.getCitiesOfState(selectedCountry, selectedState) : [];
+
+  // Handle cascading resets
+  const handleCountryChange = (e) => {
+    setSelectedCountry(e.target.value);
+    setSelectedState('');
+    setSelectedCity('');
+  };
+
+  const handleStateChange = (e) => {
+    setSelectedState(e.target.value);
+    setSelectedCity('');
+  };
+
+  const handleSearch = () => {
+    fetchDealers(false);
+  };
+
+  const filteredDealers = (origDealersList || []).filter(d => {
+    if (!searchTerm) return true;
+    return d.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           d.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           d.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           d.country?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <PageTransition>
@@ -59,13 +98,57 @@ const Dealers = () => {
               <p className="hero-desc">Connecting you with the world's most prestigious automotive dealerships.</p>
               
               <div className="search-box-luxury glass-card">
-                <Search size={20} className="search-icon" />
-                <input 
-                  type="text" 
-                  placeholder="Search by state, city, or dealership name..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <div className="search-input-group">
+                  <Search size={20} className="search-icon" />
+                  <input 
+                    type="text" 
+                    placeholder="Search by name, city..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
+                </div>
+                
+                <div className="search-filters">
+                  <select 
+                    value={selectedCountry} 
+                    onChange={handleCountryChange}
+                    className="filter-dropdown"
+                  >
+                    <option value="">All Countries</option>
+                    {uniqueCountries.map(country => (
+                      <option key={country.isoCode} value={country.isoCode}>{country.isoCode} - {country.name}</option>
+                    ))}
+                  </select>
+
+                  <select 
+                    value={selectedState} 
+                    onChange={handleStateChange}
+                    className="filter-dropdown"
+                    disabled={!selectedCountry}
+                  >
+                    <option value="">All States</option>
+                    {uniqueStates.map(state => (
+                      <option key={state.isoCode} value={state.isoCode}>{state.isoCode} - {state.name}</option>
+                    ))}
+                  </select>
+
+                  <select 
+                    value={selectedCity} 
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                    className="filter-dropdown"
+                    disabled={!selectedState}
+                  >
+                    <option value="">All Cities</option>
+                    {uniqueCities.map(city => (
+                      <option key={city.name} value={city.name}>{city.name}</option>
+                    ))}
+                  </select>
+                  
+                  <button className="btn-luxury btn-gold locate-btn" onClick={handleSearch}>
+                    <Globe size={16} /> Locate
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -117,10 +200,15 @@ const Dealers = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.03 }}
+                        style={dealer.is_sponsored ? { boxShadow: 'inset 0 0 10px rgba(197, 160, 89, 0.5)', background: 'rgba(197, 160, 89, 0.05)' } : {}}
                       >
                         <td>
                           <div className="dealer-name-cell">
-                            <span className="dealer-id">#{dealer.id}</span>
+                            {dealer.is_sponsored ? (
+                               <span className="status-tag online" style={{ background: 'var(--color-gold)', color: '#000', marginRight: '8px' }}>Sponsored</span>
+                            ) : (
+                               <span className="dealer-id">#{dealer.id}</span>
+                            )}
                             <a href={`/dealer/${dealer.id}`} className="dealer-link">{dealer.full_name}</a>
                           </div>
                         </td>

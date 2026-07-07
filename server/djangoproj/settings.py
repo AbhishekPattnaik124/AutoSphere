@@ -169,8 +169,18 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_SAMESITE': 'Lax',
 }
 
-# ── CORS ───────────────────────────────────────────────────
-CORS_ALLOW_ALL_ORIGINS = True
+# ── CORS ───────────────────────────────────────────────
+# In production, only allow specific known origins.
+# In development, allow all for convenience.
+if IS_PRODUCTION:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        o.strip()
+        for o in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost').split(',')
+    ]
+else:
+    CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOW_CREDENTIALS = True
 
 # ── OpenAPI / Swagger ──────────────────────────────────────
@@ -214,8 +224,13 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── Structured logging ─────────────────────────────────────
+# ── Structured logging ─────────────────────────────────
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+
+# Use JSON formatter in production for log aggregation (Datadog, CloudWatch, etc.)
+# Use human-readable format in development
+_LOG_FORMATTER = 'json' if IS_PRODUCTION else 'simple'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -223,11 +238,14 @@ LOGGING = {
         'simple': {
             'format': '[%(levelname)s] %(asctime)s %(name)s — %(message)s',
         },
+        'json': {
+            '()': 'djangoproj.logging_utils.JsonFormatter',
+        },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': _LOG_FORMATTER,
         },
     },
     'root': {
@@ -238,6 +256,11 @@ LOGGING = {
         'django': {
             'handlers': ['console'],
             'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
             'propagate': False,
         },
         'djangoapp': {

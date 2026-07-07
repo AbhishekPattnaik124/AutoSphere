@@ -10,11 +10,11 @@ Route hierarchy:
   /api/token/refresh/  — JWT token refresh
   /djangoapp/          — Legacy views (preserved for backward compat)
   /admin/              — Django admin
-  /                    — React SPA (all other paths)
+  /                    — React SPA (all other paths via catch-all)
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
@@ -37,6 +37,7 @@ def platform_health(request):
     """
     Unified health check for the Django Hub.
     The React Health Dashboard polls this endpoint.
+    Returns: { status, uptime_seconds, django_version, checks, trace_id }
     """
     import django
     from django.db import connection
@@ -64,7 +65,7 @@ def platform_health(request):
         "version": "2.0.0",
         "status": "healthy" if status_ok else "degraded",
         "uptime_seconds": uptime,
-        "django_version": django.VERSION,
+        "django_version": list(django.VERSION),
         "checks": {
             "database": {"connected": db_ok},
             "redis": {"connected": redis_ok},
@@ -96,19 +97,10 @@ urlpatterns = [
     # ── Legacy Django views (backward compat) ──────────────
     path('djangoapp/', include('djangoapp.urls')),
 
-    # ── React SPA routes (serve index.html for all) ────────
-    path('', TemplateView.as_view(template_name="index.html")),
-    path('about/', TemplateView.as_view(template_name="index.html")),
-    path('contact/', TemplateView.as_view(template_name="index.html")),
-    path('advancements/', TemplateView.as_view(template_name="index.html")),
-    path('login/', TemplateView.as_view(template_name="index.html")),
-    path('register/', TemplateView.as_view(template_name="index.html")),
-    path('dealers/', TemplateView.as_view(template_name="index.html")),
-    path('dealer/<int:dealer_id>', TemplateView.as_view(template_name="index.html")),
-    path('postreview/<int:dealer_id>', TemplateView.as_view(template_name="index.html")),
-    path('searchcars/<int:dealer_id>', TemplateView.as_view(template_name="index.html")),
-    path('book/<int:dealer_id>', TemplateView.as_view(template_name="index.html")),
-    path('health-dashboard/', TemplateView.as_view(template_name="index.html")),
-    path('dashboard/', TemplateView.as_view(template_name="index.html")),
+    # ── React SPA — catch-all (must be last) ──────────────
+    # Serves index.html for every frontend route so React Router works
+    re_path(r'^(?!api|admin|static|media|djangoapp).*$',
+            TemplateView.as_view(template_name='index.html'),
+            name='spa_index'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

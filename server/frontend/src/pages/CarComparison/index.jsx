@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Car, Info, Sparkles, TrendingDown, Clock } from 'lucide-react';
+import { Search, Car, Info, Sparkles, TrendingDown, Clock, ShieldCheck } from 'lucide-react';
 import Header from '../../components/Header/Header';
 import PageTransition from '../../components/PageTransition';
+import BlockchainLedgerModal from '../../components/BlockchainLedgerModal/BlockchainLedgerModal';
+import { useCurrency } from '../../context/CurrencyContext';
 import './CarComparison.css';
 
 const CarComparison = () => {
@@ -10,6 +12,8 @@ const CarComparison = () => {
   const [selectedDealer, setSelectedDealer] = useState('');
   const [inventory, setInventory] = useState([]);
   const [comparing, setComparing] = useState([]);
+  const [activeVin, setActiveVin] = useState(null);
+  const { formatPrice } = useCurrency();
 
   useEffect(() => {
     fetch('/djangoapp/get_dealers')
@@ -67,7 +71,7 @@ const CarComparison = () => {
               {inventory.map(car => (
                 <div key={car._id} className="mini-car-card" onClick={() => addToCompare(car)}>
                   <span>{car.make} {car.model}</span>
-                  <strong>${car.price.toLocaleString()}</strong>
+                  <strong>{formatPrice(car.price)}</strong>
                 </div>
               ))}
             </div>
@@ -110,7 +114,7 @@ const CarComparison = () => {
               <div className="compare-rows">
                 <div className={`row ${car.price === minPrice ? 'winner' : ''}`}>
                   <span className="label">Price</span>
-                  <span className="value highlighting">${car.price.toLocaleString()}</span>
+                  <span className="value highlighting">{formatPrice(car.price)}</span>
                 </div>
                 <div className={`row ${car.mileage === minMileage ? 'winner' : ''}`}>
                   <span className="label">Mileage</span>
@@ -125,7 +129,11 @@ const CarComparison = () => {
                   <span className="value">{car.transmission || 'Automatic'}</span>
                 </div>
               </div>
-              <button className="btn-luxury-sm">Inquire Now</button>
+              <button className="btn-luxury-sm" onClick={() => setActiveVin(car.id || car._id)}>
+                <ShieldCheck size={14} style={{marginRight: '5px'}}/>
+                Web3 Ledger
+              </button>
+              <button className="btn-luxury-sm" style={{marginTop: '10px'}}>Inquire Now</button>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -137,6 +145,13 @@ const CarComparison = () => {
         </motion.div>
       </div>
     </div>
+        
+        {activeVin && (
+          <BlockchainLedgerModal 
+            vin={activeVin} 
+            onClose={() => setActiveVin(null)} 
+          />
+        )}
     </PageTransition>
   );
 };

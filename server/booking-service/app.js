@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3060;
+const SERVICE_START = Date.now();
 
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors());
@@ -44,7 +45,16 @@ const Appointment = mongoose.model('Appointment', AppointmentSchema);
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', service: 'Booking Service', timestamp: new Date() });
+  const dbState = mongoose.connection.readyState;
+  const isHealthy = dbState === 1;
+  res.json({
+    service: 'booking-service',
+    version: '2.0.0',
+    status: isHealthy ? 'healthy' : 'degraded',
+    uptime_seconds: Math.floor((Date.now() - SERVICE_START) / 1000),
+    database: { connected: isHealthy },
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Book an appointment

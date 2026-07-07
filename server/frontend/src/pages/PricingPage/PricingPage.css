@@ -1,0 +1,130 @@
+.pricing-page {
+  padding: 120px 20px 80px;
+  min-height: 100vh;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.pricing-header h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pricing-header p {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.pricing-grid {
+  display: flex;
+  gap: 40px;
+  max-width: 1000px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.pricing-card {
+  flex: 1;
+  min-width: 320px;
+  padding: 40px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.pro-card {
+  border: 1px solid var(--color-gold);
+  box-shadow: 0 0 30px rgba(197, 160, 89, 0.1);
+}
+
+.pro-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--color-gold);
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.pricing-icon {
+  color: var(--color-gold);
+  margin-bottom: 20px;
+}
+
+.pricing-card h3 {
+  font-size: 1.5rem;
+  margin: 0 0 15px 0;
+}
+
+.price {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.price .currency {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 5px;
+  color: var(--color-gold);
+}
+
+.price .amount {
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.pricing-desc {
+  font-size: 0.95rem;
+  opacity: 0.7;
+  margin-bottom: 30px;
+  min-height: 40px;
+}
+
+.pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px 0;
+  flex-grow: 1;
+}
+
+.pricing-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  font-size: 1.05rem;
+}
+
+.pricing-features li svg {
+  color: var(--color-primary);
+}
+
+.btn-outline-gold {
+  background: transparent;
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold);
+}
+
+.btn-outline-gold:hover {
+  background: rgba(197, 160, 89, 0.1);
+}
