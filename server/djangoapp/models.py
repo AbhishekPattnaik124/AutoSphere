@@ -1,3 +1,4 @@
+import hashlib
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -60,13 +61,14 @@ class CarModel(models.Model):
 
 # ── Dealership Billing ─────────────────────────────────────────
 
+
 class DealershipBilling(models.Model):
     """
     Monetization: Tracks Lead Credits for dealerships.
     Dealerships purchase lead credits, which are deducted when
     a user books a test drive.
     """
-    dealer_id = models.IntegerField(unique=True) # Maps to the external Node.js Dealer ID
+    dealer_id = models.IntegerField(unique=True)  # Maps to the external Node.js Dealer ID
     lead_credits = models.IntegerField(default=0)
     stripe_customer_id = models.CharField(max_length=100, blank=True, default='')
     is_sponsored = models.BooleanField(default=False)
@@ -81,7 +83,6 @@ class DealershipBilling(models.Model):
 
 # ── Blockchain Vehicle Ledger ──────────────────────────────────
 
-import hashlib
 
 class VehicleLedger(models.Model):
     """
@@ -89,7 +90,7 @@ class VehicleLedger(models.Model):
     Stores maintenance and ownership events hashed with SHA-256.
     """
     vin = models.CharField(max_length=17, db_index=True)
-    event_type = models.CharField(max_length=50) # 'SERVICE', 'SALE', 'ACCIDENT'
+    event_type = models.CharField(max_length=50)  # 'SERVICE', 'SALE', 'ACCIDENT'
     description = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     dealer_id = models.IntegerField(null=True, blank=True)

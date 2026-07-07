@@ -40,7 +40,8 @@ def _load_seed_data() -> list[dict]:
     """Load synthetic price seed data, generating it if missing."""
     if not os.path.exists(SEED_DATA_PATH):
         logger.info("Seed data not found — generating 500 records...")
-        import subprocess, sys
+        import subprocess
+        import sys
         subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "seed_prices.py")],
                        cwd=os.path.dirname(__file__))
     with open(SEED_DATA_PATH) as f:

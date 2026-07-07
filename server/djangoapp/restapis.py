@@ -99,7 +99,7 @@ def get_dealerships_cached(endpoint: str, trace_id: str = None) -> dict | None:
     """
     cache_key = f"dealers:{endpoint}"
     backup_key = f"dealers_backup:{endpoint}"
-    
+
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
@@ -107,9 +107,9 @@ def get_dealerships_cached(endpoint: str, trace_id: str = None) -> dict | None:
     result = get_request(endpoint, trace_id=trace_id)
     if result is not None:
         cache.set(cache_key, result, timeout=DEALER_CACHE_TIMEOUT)
-        cache.set(backup_key, result, timeout=None) # Keep backup indefinitely
+        cache.set(backup_key, result, timeout=None)  # Keep backup indefinitely
         return result
-        
+
     # Circuit breaker is open or network failed; return stale data if available
     return cache.get(backup_key)
 

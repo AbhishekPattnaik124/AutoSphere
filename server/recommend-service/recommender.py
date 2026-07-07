@@ -12,7 +12,6 @@ At startup:
 import logging
 import os
 import requests
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -50,7 +49,7 @@ def _build_car_description(car: dict) -> str:
 
 
 def _build_preference_text(budget: int, preferred_make: str,
-                            usage_type: str, fuel_preference: str) -> str:
+                           usage_type: str, fuel_preference: str) -> str:
     """Build a query vector string from user preferences."""
     parts = [
         preferred_make.lower() if preferred_make else "",
@@ -71,7 +70,7 @@ def build_index() -> bool:
     try:
         logger.info("Building recommendation index from inventory service...")
         # Fetch all dealers, then their cars
-        dealers_resp = requests.get(f"{INVENTORY_URL}/cars/1", timeout=10)
+        requests.get(f"{INVENTORY_URL}/cars/1", timeout=10)
         # Simplified: fetch cars from dealer 1 as a seed (in production, paginate all dealers)
         all_cars = []
         for dealer_id in range(1, 30):  # Try up to 30 dealers
@@ -170,8 +169,8 @@ def explain_car(car_id: str, budget: int = None, preferred_make: str = "",
         "price": car.get("price"),
         "explanation": reasons,
         "human_summary": f"This {car.get('year')} {car.get('make')} {car.get('model')} "
-                         f"{'is within your budget' if budget and car.get('price', 0) <= budget else 'may stretch your budget'}, "
-                         f"suitable for {usage_type} driving, and runs on {fuel_preference}.",
+        f"{'is within your budget' if budget and car.get('price', 0) <= budget else 'may stretch your budget'}, "
+        f"suitable for {usage_type} driving, and runs on {fuel_preference}.",
     }
 
 

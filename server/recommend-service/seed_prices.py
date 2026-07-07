@@ -17,7 +17,7 @@ MAKES = {
     "Chevrolet": ["Silverado", "Malibu", "Equinox", "Traverse", "Camaro"],
     "BMW":    ["3 Series", "5 Series", "X3", "X5", "7 Series"],
     "Tesla":  ["Model 3", "Model Y", "Model S", "Model X"],
-    "Hyundai":["Elantra", "Sonata", "Tucson", "Santa Fe"],
+    "Hyundai": ["Elantra", "Sonata", "Tucson", "Santa Fe"],
     "Kia":    ["Forte", "Optima", "Sorento", "Sportage"],
     "Jeep":   ["Wrangler", "Cherokee", "Grand Cherokee", "Compass"],
     "Nissan": ["Altima", "Sentra", "Rogue", "Pathfinder", "Frontier"],

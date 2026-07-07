@@ -25,6 +25,7 @@ class JsonFormatter(logging.Formatter):
     """
     Emit log records as structured JSON with trace ID support.
     """
+
     def format(self, record):
         log_entry = {
             "time": datetime.utcnow().isoformat() + "Z",
@@ -79,7 +80,6 @@ def custom_exception_handler(exc, context):
 
 class CircuitBreakerOpen(Exception):
     """Raised when a circuit is OPEN and requests are being rejected."""
-    pass
 
 
 class CircuitBreaker:

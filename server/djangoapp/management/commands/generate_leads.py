@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
-import json
 import random
+
 
 class Command(BaseCommand):
     help = 'Simulates scraping Google Maps for local dealerships and generates automated onboarding emails.'
@@ -8,7 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.WARNING("Starting AI Lead Generation Pipeline..."))
         self.stdout.write("Initializing Maps Scraper... [MOCK]")
-        
+
         # Simulated scraped data
         mock_scraped_dealers = [
             {"name": "Elite Motors Beverly Hills", "city": "Beverly Hills", "state": "CA", "zip": "90210"},
@@ -21,10 +21,10 @@ class Command(BaseCommand):
 
         for dealer in mock_scraped_dealers:
             self.stdout.write(self.style.WARNING(f"\nProcessing {dealer['name']}..."))
-            
+
             # Simulated profile creation in Autosphere
             profile_url = f"https://autosphere.app/dealers/{random.randint(100, 999)}/profile"
-            
+
             # Simulated email dispatch
             email_body = f"""
             SUBJECT: We built a premium profile for {dealer['name']}
@@ -45,5 +45,5 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Generated Onboarding Email:"))
             self.stdout.write(email_body)
             self.stdout.write("-" * 50)
-            
+
         self.stdout.write(self.style.SUCCESS("Pipeline complete. 4 emails queued for delivery."))

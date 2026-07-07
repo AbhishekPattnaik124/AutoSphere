@@ -10,10 +10,8 @@ Endpoints:
   POST /price/predict             — Fair price prediction (Ridge Regression)
 """
 
-import os
 import time
 import logging
-import json
 import psutil
 from datetime import datetime
 from threading import Thread
@@ -202,6 +200,7 @@ def price_predict():
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "NOT_FOUND", "message": str(e)}), 404
+
 
 @app.errorhandler(500)
 def server_error(e):

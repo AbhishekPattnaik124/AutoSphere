@@ -1,12 +1,12 @@
 import os
 import django
-from django.conf import settings
 from django.db import connection
 import requests
 
 # Set up Django environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djangoproj.settings')
 django.setup()
+
 
 def check_django_db():
     print("--- Checking Django Database ---")
@@ -16,6 +16,7 @@ def check_django_db():
     except Exception as e:
         print(f"ERROR: Django Database FAILED ({e})")
 
+
 def check_microservices():
     services = {
         "Dealer API": "http://localhost:3030/health",
@@ -23,7 +24,7 @@ def check_microservices():
         "Sentiment API": "http://localhost:5050/health",
         "Django Health": "http://localhost:8000/api/health/"
     }
-    
+
     print("\n--- Checking Microservices Status ---")
     for name, url in services.items():
         try:
@@ -34,6 +35,7 @@ def check_microservices():
                 print(f"DEGRADED: {name} (HTTP {res.status_code})")
         except Exception:
             print(f"OFFLINE: {name} (Unreachable)")
+
 
 if __name__ == "__main__":
     check_django_db()

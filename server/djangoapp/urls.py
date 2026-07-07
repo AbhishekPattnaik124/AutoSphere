@@ -38,10 +38,10 @@ urlpatterns = [
     # ── Booking ────────────────────────────────────────────
     path(route='book', view=views.book_appointment, name='book_appointment'),
     path(route='bookings/user/<str:username>', view=views.get_user_bookings, name='user_bookings'),
-    
+
     # ── SEO ────────────────────────────────────────────────
     path(route='sitemap.xml', view=views.sitemap_xml, name='sitemap_xml'),
-    
+
     # Stripe integration
     path('stripe/create-checkout-session', stripe_views.create_checkout_session, name='stripe_checkout'),
     path('stripe/create-spotlight-session', stripe_views.create_spotlight_session, name='stripe_spotlight_checkout'),

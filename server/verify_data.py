@@ -1,9 +1,9 @@
 import requests
-import json
+
 
 def verify_data():
     print("--- Verifying Data Integrity ---")
-    
+
     # 1. Check Dealers
     try:
         res = requests.get("http://localhost:3030/fetchDealers", timeout=2)
@@ -28,6 +28,7 @@ def verify_data():
         print(f"NLP: Sentiment analysis is active. Result: {sentiment.get('sentiment')}")
     except Exception as e:
         print(f"NLP: FAILED ({e})")
+
 
 if __name__ == "__main__":
     verify_data()

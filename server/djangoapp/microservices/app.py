@@ -193,7 +193,7 @@ def health():
         "uptime_seconds": uptime,
         "active_model": active_model,
         "model_ready": transformer_pipeline is not None or active_model == "vader",
-        "database": { "connected": True, "type": "in-memory-vader" }, # Mock for dashboard compliance
+        "database": {"connected": True, "type": "in-memory-vader"},  # Mock for dashboard compliance
         "memory": {
             "used_mb": round(mem.used / 1024 / 1024),
             "total_mb": round(mem.total / 1024 / 1024),
@@ -257,7 +257,8 @@ def analyze_batch():
                 analysis = future.result()
                 results.append({"text": text[:100] + "..." if len(text) > 100 else text, **analysis})
             except Exception as e:
-                results.append({"text": text[:100], "error": str(e), "sentiment": "neutral", "confidence": 0, "model": "error"})
+                results.append({"text": text[:100], "error": str(
+                    e), "sentiment": "neutral", "confidence": 0, "model": "error"})
 
     log("INFO", "Batch analysis complete",
         traceId=trace_id,
@@ -317,7 +318,7 @@ def dealer_trust_score(dealer_id):
     Now supports POST to handle large review lists without URL length limits.
     """
     import math
-    
+
     if request.method == 'POST':
         data = request.get_json(silent=True) or {}
         reviews = data.get('reviews', [])

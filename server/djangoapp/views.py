@@ -8,9 +8,9 @@ from django.views.decorators.csrf import csrf_exempt
 from .populate import initiate
 from .models import CarMake, CarModel, DealershipBilling
 from .restapis import (
-    get_request, analyze_review_sentiments, analyze_batch,
-    post_review, searchcars_request, summarize_reviews,
-    get_dealer_score, post_booking,
+    get_request, analyze_batch, post_review,
+    searchcars_request, summarize_reviews, get_dealer_score,
+    post_booking,
 )
 
 
@@ -59,6 +59,7 @@ def add_review(request):
         return JsonResponse({"status": 403, "message": "Unauthorized"})
 
 # ── Authentication Views ───────────────────────────────────────
+
 
 @csrf_exempt
 def login_user(request):
@@ -143,20 +144,24 @@ def get_dealerships(request, state="All"):
 
     endpoint = "/fetchDealers"
     query_params = []
-    if country: query_params.append(f"country={country}")
-    if req_state: query_params.append(f"state={req_state}")
-    elif state != "All": query_params.append(f"state={state}")
-    if city: query_params.append(f"city={city}")
+    if country:
+        query_params.append(f"country={country}")
+    if req_state:
+        query_params.append(f"state={req_state}")
+    elif state != "All":
+        query_params.append(f"state={state}")
+    if city:
+        query_params.append(f"city={city}")
 
     if query_params:
         endpoint += "?" + "&".join(query_params)
-        
+
     dealerships = get_request(endpoint) or []
-    
+
     billings = {b.dealer_id: b.is_sponsored for b in DealershipBilling.objects.all()}
     for d in dealerships:
         d['is_sponsored'] = billings.get(d.get('id'), False)
-        
+
     dealerships.sort(key=lambda d: not d.get('is_sponsored', False))
 
     return JsonResponse({"status": 200, "dealers": dealerships})
@@ -452,52 +457,54 @@ def get_dashboard_stats(request):
 
 # ── SEO ────────────────────────────────────────────────────────
 
+
 def sitemap_xml(request):
     from django.http import HttpResponse
     from django.utils import timezone
-    
+
     dealers = get_request("/fetchDealers") or []
-    
+
     base_url = "https://autosphere-os.com"
     date_str = timezone.now().strftime('%Y-%m-%d')
-    
+
     xml = ['<?xml version="1.0" encoding="UTF-8"?>']
     xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-    
+
     # Static pages
     for path in ['', '/about', '/dealers', '/advancements', '/market-trends']:
-        xml.append(f'  <url>')
+        xml.append('  <url>')
         xml.append(f'    <loc>{base_url}{path}</loc>')
         xml.append(f'    <lastmod>{date_str}</lastmod>')
-        xml.append(f'    <changefreq>daily</changefreq>')
-        xml.append(f'  </url>')
-        
+        xml.append('    <changefreq>daily</changefreq>')
+        xml.append('  </url>')
+
     # Dealer pages
     for d in dealers:
-        xml.append(f'  <url>')
+        xml.append('  <url>')
         xml.append(f'    <loc>{base_url}/dealer/{d.get("id")}</loc>')
         xml.append(f'    <lastmod>{date_str}</lastmod>')
-        xml.append(f'    <changefreq>daily</changefreq>')
-        xml.append(f'  </url>')
-        
+        xml.append('    <changefreq>daily</changefreq>')
+        xml.append('  </url>')
+
     xml.append('</urlset>')
-    
+
     return HttpResponse("\\n".join(xml), content_type="application/xml")
+
 
 @csrf_exempt
 def trade_in_valuation(request):
     if request.method != 'POST':
         return JsonResponse({"error": "Method not allowed"}, status=405)
-        
+
     try:
         data = json.loads(request.body)
-        
+
         # MOCK AI VALUATION LOGIC
         year = int(data.get('year', 2020))
         base_value = 25000
         age = 2024 - year
         estimated_value = max(5000, base_value - (age * 1500))
-        
+
         return JsonResponse({
             "status": "success",
             "valuation": {
@@ -510,11 +517,12 @@ def trade_in_valuation(request):
         logger.error(f"Trade-in error: {e}")
         return JsonResponse({"error": str(e)}, status=500)
 
+
 @csrf_exempt
 def get_vehicle_ledger(request, vin):
     """Fetch the blockchain ledger history for a specific VIN."""
     from .models import VehicleLedger
-    
+
     # If no records exist, let's auto-generate a mock Genesis block and some history for the demo
     count = VehicleLedger.objects.filter(vin=vin).count()
     if count == 0:
@@ -532,7 +540,7 @@ def get_vehicle_ledger(request, vin):
         )
 
     ledger_entries = VehicleLedger.objects.filter(vin=vin).order_by('-timestamp')
-    
+
     history = []
     for entry in ledger_entries:
         history.append({
@@ -543,8 +551,9 @@ def get_vehicle_ledger(request, vin):
             "hash": entry.hash,
             "previous_hash": entry.previous_hash
         })
-        
+
     return JsonResponse({"status": "success", "ledger": history})
+
 
 @csrf_exempt
 def trigger_voice_call(request, dealer_id):
@@ -558,13 +567,13 @@ def trigger_voice_call(request, dealer_id):
             data = json.loads(request.body)
             lead_name = data.get('lead_name', 'A customer')
             lead_car = data.get('lead_car', 'a vehicle')
-            
+
             # Here we would normally use the Twilio client to initiate a call
             # using TwiML and a WebSocket connection to OpenAI's Realtime API.
-            
+
             # For demonstration, we return a mock success response with the script.
             script = f"Hello. You have a new hot lead from Autosphere. {lead_name} wants to test drive the {lead_car}. Press 1 to connect with them right now."
-            
+
             return JsonResponse({
                 "status": "success",
                 "message": "AI Voice Call Initiated",
