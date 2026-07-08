@@ -35,7 +35,7 @@ Your main Django backend requires a Python Web Service.
      - **Environment**: `Python 3`
      - **Region**: (Match your PostgreSQL region)
      - **Root Directory**: `server`
-     - **Build Command**: `pip install -r requirements.txt && python manage.py migrate`
+     - **Build Command**: `pip install -r requirements.txt && python manage.py migrate && python manage.py seed_db`
      - **Start Command**: `gunicorn djangoproj.wsgi:application --bind 0.0.0.0:$PORT`
 
 2. **Environment Variables**
@@ -52,26 +52,157 @@ Your main Django backend requires a Python Web Service.
 
 ## Phase 3: Deploy Node.js Microservices (Web Services)
 
-You have several microservices (`database`, `carsInventory`, etc.). You will deploy these as separate Node Web Services.
+Deploy each microservice as a separate **Node Web Service** on Render. For each one:
+- Click **New +** > **Web Service**
+- Connect your GitHub repository (`AbhishekPattnaik124/AutoSphere`)
+- Set **Environment** to `Node` (or `Python` for the recommend service)
+- Set **Build Command**: `npm install`
+- Set **Start Command**: `node app.js`
 
-*Example for the `database` service (Dealership/Review API):*
+> **MongoDB**: All services share a **single MongoDB Atlas cluster**. Use the same connection string (`MONGO_URL`) for every service below:
+> ```
+> mongodb+srv://<username>:<password>@cluster0.mmxdtc9.mongodb.net/?appName=Cluster0
+> ```
+> Each service uses a different **database name** within the same cluster — no extra setup needed.
 
-1. **Create Web Service**
-   - Click **New +** > **Web Service**.
-   - Connect the same GitHub repository.
-   - Configure:
-     - **Name**: `autosphere-dealerships-api`
-     - **Environment**: `Node`
-     - **Root Directory**: `server/database`
-     - **Build Command**: `npm install`
-     - **Start Command**: `npm start` (or `node app.js`)
+---
 
-2. **Environment Variables**
-   - Add your MongoDB connection string:
-     - `MONGO_URL`: *(Paste your MongoDB Atlas connection string)*
+### 3.1 — `database` (Dealership & Review API)
 
-3. Click **Create Web Service**.
-*(Repeat this process for your other Node microservices like `carsInventory` if needed).*
+| Setting | Value |
+|---------|-------|
+| **Name** | `autosphere-dealerships-api` |
+| **Root Directory** | `server/database` |
+| **Build Command** | `npm install` |
+| **Start Command** | `node app.js` |
+| **Default Port** | `3030` |
+
+**Environment Variables:**
+
+| Key | Value |
+|-----|-------|
+| `MONGO_URL` | *(Your MongoDB Atlas connection string)* |
+| `NODE_ENV` | `production` |
+| `REDIS_URL` | *(Optional — Render Redis Internal URL, e.g. `redis://red-xxxx:6379`)* |
+
+---
+
+### 3.2 — `carsInventory` (Car Inventory & Search API)
+
+| Setting | Value |
+|---------|-------|
+| **Name** | `autosphere-inventory-api` |
+| **Root Directory** | `server/carsInventory` |
+| **Build Command** | `npm install` |
+| **Start Command** | `node app.js` |
+| **Default Port** | `3050` |
+
+**Environment Variables:**
+
+| Key | Value |
+|-----|-------|
+| `MONGO_URL` | *(Your MongoDB Atlas connection string)* |
+| `NODE_ENV` | `production` |
+| `REDIS_URL` | *(Optional — Render Redis Internal URL, e.g. `redis://red-xxxx:6379`)* |
+
+---
+
+### 3.3 — `booking-service` (Appointment Booking API)
+
+| Setting | Value |
+|---------|-------|
+| **Name** | `autosphere-booking-api` |
+| **Root Directory** | `server/booking-service` |
+| **Build Command** | `npm install` |
+| **Start Command** | `node app.js` |
+| **Default Port** | `3060` |
+
+**Environment Variables:**
+
+| Key | Value |
+|-----|-------|
+| `MONGO_URL` | *(Your MongoDB Atlas connection string)* |
+| `NODE_ENV` | `production` |
+| `REDIS_URL` | *(Optional — Render Redis Internal URL, e.g. `redis://red-xxxx:6379`)* |
+
+---
+
+### 3.4 — `recommend-service` (AI Recommendation & Price Intelligence)
+
+> ⚠️ This is a **Python/Flask** service, not Node.js. Set **Environment** to `Python`.
+
+| Setting | Value |
+|---------|-------|
+| **Name** | `autosphere-recommend-api` |
+| **Root Directory** | `server/recommend-service` |
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `gunicorn app:app --bind 0.0.0.0:$PORT` |
+| **Default Port** | `3070` |
+
+**Environment Variables:**
+
+| Key | Value |
+|-----|-------|
+| `MONGO_URL` | *(Your MongoDB Atlas connection string)* |
+| `FLASK_ENV` | `production` |
+
+---
+
+### 3.5 — `notification-service` (Real-Time Notifications)
+
+| Setting | Value |
+|---------|-------|
+| **Name** | `autosphere-notification-api` |
+| **Root Directory** | `server/notification-service` |
+| **Build Command** | `npm install` |
+| **Start Command** | `node app.js` |
+| **Default Port** | `3080` |
+
+**Environment Variables:**
+
+| Key | Value |
+|-----|-------|
+| `NODE_ENV` | `production` |
+| `REDIS_URL` | *(Optional — Render Redis Internal URL, e.g. `redis://red-xxxx:6379`)* |
+| `SMTP_HOST` | *(e.g. `smtp.gmail.com`)* |
+| `SMTP_PORT` | `587` |
+| `SMTP_USER` | *(Your sender email address)* |
+| `SMTP_PASS` | *(Your email app password)* |
+
+---
+
+### 3.6 — `audit-service` (Centralized Audit Logging)
+
+| Setting | Value |
+|---------|-------|
+| **Name** | `autosphere-audit-api` |
+| **Root Directory** | `server/audit-service` |
+| **Build Command** | `npm install` |
+| **Start Command** | `node app.js` |
+| **Default Port** | `3090` |
+
+**Environment Variables:**
+
+| Key | Value |
+|-----|-------|
+| `MONGO_URL` | *(Your MongoDB Atlas connection string)* |
+| `NODE_ENV` | `production` |
+| `REDIS_URL` | *(Optional — Render Redis Internal URL, e.g. `redis://red-xxxx:6379`)* |
+
+---
+
+### 3.7 — Update Django Backend with Microservice URLs
+
+After all services are deployed, go to your **Django backend** Render service → **Environment** tab and add the live URLs:
+
+| Key | Value |
+|-----|-------|
+| `backend_url` | `https://autosphere-dealerships-api.onrender.com` |
+| `searchcars_url` | `https://autosphere-inventory-api.onrender.com/` |
+| `booking_url` | `https://autosphere-booking-api.onrender.com` |
+| `recommend_url` | `https://autosphere-recommend-api.onrender.com` |
+| `notification_url` | `https://autosphere-notification-api.onrender.com` |
+| `audit_url` | `https://autosphere-audit-api.onrender.com` |
 
 ---
 
