@@ -20,7 +20,7 @@ const FUEL_TYPES = [
 
 const MAKES = ['Any', 'Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Tesla', 'Hyundai', 'Kia', 'Nissan', 'Jeep'];
 
-const RECOMMEND_URL = process.env.REACT_APP_RECOMMEND_URL || 'http://localhost:3070';
+const RECOMMEND_URL = process.env.REACT_APP_RECOMMEND_URL || 'https://autosphere-recommend-api.onrender.com';
 
 // ── Match Score Badge ──────────────────────────────────────
 function MatchBadge({ score }) {
