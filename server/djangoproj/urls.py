@@ -10,12 +10,12 @@ Route hierarchy:
   /api/token/refresh/  — JWT token refresh
   /djangoapp/          — Legacy views (preserved for backward compat)
   /admin/              — Django admin
-  /                    — React SPA (all other paths via catch-all)
+  /                    — Redirects to /api/docs/
 """
 
 from django.contrib import admin
-from django.urls import path, include, re_path
-from django.views.generic import TemplateView
+from django.urls import path, include
+from django.views.generic import RedirectView
 from django.conf.urls.static import static
 from django.conf import settings
 from django.http import JsonResponse
@@ -97,10 +97,7 @@ urlpatterns = [
     # ── Legacy Django views (backward compat) ──────────────
     path('djangoapp/', include('djangoapp.urls')),
 
-    # ── React SPA — catch-all (must be last) ──────────────
-    # Serves index.html for every frontend route so React Router works
-    re_path(r'^(?!api|admin|static|media|djangoapp).*$',
-            TemplateView.as_view(template_name='index.html'),
-            name='spa_index'),
+    # ── Root — redirect to API docs (frontend is a separate deployment) ──
+    path('', RedirectView.as_view(url='/api/docs/', permanent=False), name='root'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
