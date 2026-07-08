@@ -35,6 +35,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost",
     "https://autosphere-backend-zs8t.onrender.com",
+    "https://autosphere-frontend.onrender.com",
 ]
 
 # ── Apps ───────────────────────────────────────────────────
@@ -176,8 +177,12 @@ SIMPLE_JWT = {
 if IS_PRODUCTION:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
-        o.strip()
-        for o in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost').split(',')
+        'https://autosphere-frontend.onrender.com',
+        *[
+            o.strip()
+            for o in os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+            if o.strip()
+        ],
     ]
 else:
     CORS_ALLOW_ALL_ORIGINS = True
