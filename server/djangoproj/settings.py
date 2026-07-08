@@ -186,15 +186,15 @@ CORS_ALLOW_CREDENTIALS = True
 
 # ── OpenAPI / Swagger ──────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Best Cars Dealership API',
-    'DESCRIPTION': 'Enterprise-grade car dealership platform API — v2.0',
+    'TITLE': 'AutoSphere API',
+    'DESCRIPTION': 'AutoSphere — Enterprise-grade car dealership platform API v2.0',
     'VERSION': '2.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'SWAGGER_UI_SETTINGS': {
         'deepLinking': True,
         'persistAuthorization': True,
     },
-    'CONTACT': {'name': 'Best Cars Dev Team'},
+    'CONTACT': {'name': 'AutoSphere Dev Team'},
 }
 
 # ── Auth password validators ───────────────────────────────
